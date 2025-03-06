@@ -1,0 +1,5 @@
+{
+  "TenantId": "[Azure Tenant Id]",
+  "ClientId": "[Azure Client Id]",
+  "ClientSecret": "[Azure Client Secret]"
+}
