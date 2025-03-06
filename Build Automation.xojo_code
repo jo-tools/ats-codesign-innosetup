@@ -1,0 +1,231 @@
+#tag BuildAutomation
+			Begin BuildStepList Linux
+				Begin BuildProjectStep Build
+				End
+			End
+			Begin BuildStepList Mac OS X
+				Begin BuildProjectStep Build
+				End
+				Begin SignProjectStep Sign
+				  DeveloperID=
+				  macOSEntitlements={"App Sandbox":"False","Hardened Runtime":"False","Notarize":"False","UserEntitlements":""}
+				End
+			End
+			Begin BuildStepList Windows
+				Begin BuildProjectStep Build
+				End
+				Begin IDEScriptBuildStep AzureTrustedSigning , AppliesTo = 2, Architecture = 0, Target = 0
+					'**************************************************
+					'CodeSign | Azure Trusted Signing | Docker
+					'**************************************************
+					'1. Read the comments in this PostBuild Script
+					'2. Edit the values according to your needs
+					'**************************************************
+					'3. If it's working for you:
+					'   Do you like it? Does it help you? Has it saved you time and money?
+					'   You're welcome - it's free...
+					'   If you want to say thanks I appreciate a message or a small donation.
+					'   Contact: xojo@jo-tools.ch
+					'   PayPal:  https://paypal.me/jotools
+					'**************************************************
+					
+					If DebugBuild Then Return 'don't CodeSign DebugRun's
+					
+					'Check Build Target
+					Select Case CurrentBuildTarget
+					Case 3 'Windows (Intel, 32Bit)
+					Case 19 'Windows (Intel, 64Bit)
+					Case 25 'Windows(ARM, 64Bit)
+					Else
+					Print "AzureTrustedSigning: Unsupported Build Target"
+					Return
+					End Select
+					
+					'Don't CodeSign Development and Alpha Builds
+					Select Case PropertyValue("App.StageCode")
+					Case "0" 'Development
+					print "AzureTrustedSigning: Not enabled for Development Builds"
+					Return
+					Case "1" 'Alpha
+					print "AzureTrustedSigning: Not enabled for Alpha Builds"
+					Return
+					Case "2" 'Beta
+					Case "3" 'Final
+					End Select
+					
+					'Configure what to be CodeSigned
+					Var sSIGN_FILES() As String
+					
+					Select Case PropertyValue("App.StageCode")
+					Case "3" 'Final
+					'sign all .exe's and all .dll's
+					sSIGN_FILES.Add("""./**/*.exe""") 'recursively all .exe's
+					sSIGN_FILES.Add("""./**/*.dll""") 'recursively all .dll's
+					else
+					'only sign all .exe's for Beta/Alpha/Development builds
+					sSIGN_FILES.Add("""./**/*.exe""") 'recursively all .exe's
+					end select
+					
+					Var sDOCKER_IMAGE As String = "jotools/ats-codesign"
+					Var sFILE_ACS_JSON As String = ""
+					Var sFILE_AZURE_JSON As String = ""
+					Var sBUILD_LOCATION As String = CurrentBuildLocation
+					
+					'Check Environment
+					If TargetWindows Then 'Xojo IDE is running on Windows
+					sFILE_ACS_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\acs.json echo %USERPROFILE%\.ats-codesign\acs.json").Trim
+					sFILE_AZURE_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\azure.json echo %USERPROFILE%\.ats-codesign\azure.json").Trim
+					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
+					'TODO
+					sBUILD_LOCATION = sBUILD_LOCATION.ReplaceAll("\", "") 'don't escape Path
+					Else
+					Print "AzureTrustedSigning: Xojo IDE running on unknown Target"
+					End If
+					
+					If (sFILE_ACS_JSON = "") Or (sFILE_AZURE_JSON = "") Then
+					Print "AzureTrustedSigning: acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]"
+					Return
+					End If
+					
+					'Check Docker
+					Var iCHECK_DOCKER_RESULT As Integer
+					Var sCHECK_DOCKER_EXE As String = DoShellCommand("docker --version", 0, iCHECK_DOCKER_RESULT).Trim
+					If (iCHECK_DOCKER_RESULT <> 0) Or (Not sCHECK_DOCKER_EXE.Contains("Docker")) Or (Not sCHECK_DOCKER_EXE.Contains("version")) Or (Not sCHECK_DOCKER_EXE.Contains("build "))Then
+					Print "AzureTrustedSigning: Docker not available"
+					Return
+					End If
+					
+					Var sCHECK_DOCKER_PROCESS As String = DoShellCommand("docker ps", 0, iCHECK_DOCKER_RESULT).Trim
+					If (iCHECK_DOCKER_RESULT <> 0) Then
+					Print "AzureTrustedSigning: Docker not running"
+					Return
+					End If
+					
+					'CodeSign in Docker Container
+					For i As Integer = sSIGN_FILES.LastIndex DownTo 0
+					sSIGN_FILES(i) = sSIGN_FILES(i).ReplaceAll("""", "\""")
+					Next
+					
+					Var sSIGN_COMMAND As String = _
+					"docker run " + _
+					"--rm " + _
+					"-v """ + sFILE_ACS_JSON + """:/etc/ats-codesign/acs.json " + _
+					"-v """ + sFILE_AZURE_JSON + """:/etc/ats-codesign/azure.json " + _
+					"-v """ + sBUILD_LOCATION + """:/data " + _
+					"-w /data " + _
+					sDOCKER_IMAGE + " " + _
+					"/bin/sh -c ""ats-codesign.sh " + String.FromArray(sSIGN_FILES, " ")+ """"
+					
+					Var iSIGN_RESULT As Integer
+					Var sSIGN_OUTPUT As String = DoShellCommand(sSIGN_COMMAND, 0, iSIGN_RESULT)
+					
+					If (iSIGN_RESULT <> 0) Then
+					Print "AzureTrustedSigning: ats-codesign Error" + EndOfLine + EndOfLine + _
+					sSIGN_OUTPUT.Trim + EndOfLine + _
+					"[ExitCode: " + iSIGN_RESULT.ToString + "]"
+					
+					If (iSIGN_RESULT <> 125) Then
+					Var iCHECK_DOCKERIMAGE_RESULT As Integer
+					Var sCHECK_DOCKERIMAGE_OUTPUT As String = DoShellCommand("docker image inspect " + sDOCKER_IMAGE, 0, iCHECK_DOCKERIMAGE_RESULT)
+					If (iCHECK_DOCKERIMAGE_RESULT <> 0) Then
+					Print "AzureTrustedSigning: Docker Image '" + sDOCKER_IMAGE + "' not available"
+					End If
+					End If
+					End If
+					
+				End
+				Begin IDEScriptBuildStep CreateZIP , AppliesTo = 2, Architecture = 0, Target = 0
+					'**************************************************
+					'Create .zip for Windows Builds
+					'**************************************************
+					'1. Read the comments in this PostBuild Script
+					'2. Edit the values according to your needs
+					'**************************************************
+					'3. If it's working for you:
+					'   Do you like it? Does it help you? Has it saved you time and money?
+					'   You're welcome - it's free...
+					'   If you want to say thanks I appreciate a message or a small donation.
+					'   Contact: xojo@jo-tools.ch
+					'   PayPal:  https://paypal.me/jotools
+					'**************************************************
+					
+					If DebugBuild Then Return 'don't create .zip for DebugRuns
+					
+					'Check Build Target
+					Select Case CurrentBuildTarget
+					Case 3 'Windows (Intel, 32Bit)
+					Case 19 'Windows (Intel, 64Bit)
+					Case 25 'Windows(ARM, 64Bit)
+					Else
+					print "CreateZIP: Unsupported Build Target"
+					Return
+					End Select
+					
+					'Xojo Project Settings
+					Var sPROJECT_PATH As String
+					Var sBUILD_LOCATION As String = CurrentBuildLocation
+					Var sAPP_NAME As String = CurrentBuildAppName
+					Var sCHAR_FOLDER_SEPARATOR As String
+					If TargetWindows Then 'Xojo IDE is running on Windows
+					sPROJECT_PATH = DoShellCommand("echo %PROJECT_PATH%", 0).Trim
+					sCHAR_FOLDER_SEPARATOR = "\"
+					If (sAPP_NAME.Right(4) = ".exe") Then
+					sAPP_NAME = sAPP_NAME.Left(sAPP_NAME.Length - 4)
+					End If
+					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
+					sPROJECT_PATH = DoShellCommand("echo $PROJECT_PATH", 0).Trim
+					If sPROJECT_PATH.Right(1) = "/" Then
+					'no trailing /
+					sPROJECT_PATH = sPROJECT_PATH.Middle(1, sPROJECT_PATH.Length - 1)
+					End If
+					sBUILD_LOCATION = sBUILD_LOCATION.ReplaceAll("\", "") 'don't escape Path
+					sCHAR_FOLDER_SEPARATOR = "/"
+					End If
+					
+					If (sPROJECT_PATH = "") Then
+					Print "Xojo PostBuild Script CreateZIP requires to get the Environment Variable PROJECT_PATH from the Xojo IDE." + EndOfLine + EndOfLine + "Unfortunately, it's empty.... try again after re-launching the Xojo IDE and/or rebooting your machine."
+					Return
+					End If
+					
+					'Check Stage Code for ZIP Filename
+					Var sSTAGECODE_SUFFIX As String
+					Select Case PropertyValue("App.StageCode")
+					Case "0" 'Development
+					sSTAGECODE_SUFFIX = "-dev"
+					Case "1" 'Alpha
+					sSTAGECODE_SUFFIX = "-alpha"
+					Case "2" 'Beta
+					sSTAGECODE_SUFFIX = "-beta"
+					Case "3" 'Final
+					'not used in filename
+					End Select
+					
+					'Build ZIP Filename
+					Var sZIP_FILENAME As String
+					Select Case CurrentBuildTarget
+					Case 3 'Windows (Intel, 32Bit)
+					sZIP_FILENAME = sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Windows_Intel_32Bit.zip"
+					Case 19 'Windows (Intel, 64Bit)
+					sZIP_FILENAME = sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Windows_Intel_64Bit.zip"
+					Case 25 'Windows(ARM, 64Bit)
+					sZIP_FILENAME = sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Windows_ARM_64Bit.zip"
+					Else
+					Return
+					End Select
+					
+					'Create .zip
+					Var sPATH_PARTS() As String = sBUILD_LOCATION.Split(sCHAR_FOLDER_SEPARATOR)
+					Var sAPP_FOLDERNAME As String = sPATH_PARTS(sPATH_PARTS.LastIndex)
+					sPATH_PARTS.RemoveAt(sPATH_PARTS.LastIndex)
+					Var sFOLDER_BASE As String = String.FromArray(sPATH_PARTS, sCHAR_FOLDER_SEPARATOR)
+					
+					If TargetWindows Then 'Xojo IDE is running on Windows
+					Var sPOWERSHELL_COMMAND As String = "cd """ + sFOLDER_BASE + """; Compress-Archive -Path .\* -DestinationPath ""..\" + sZIP_FILENAME + """"
+					Call DoShellCommand("powershell -command """ + sPOWERSHELL_COMMAND.ReplaceAll("""", "'") + """")
+					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
+					Call DoShellCommand("cd """ + sFOLDER_BASE + """ && zip -r ""../" + sZIP_FILENAME + """ ""./" + sAPP_FOLDERNAME + """", 0)
+					End If
+					
+				End
+			End
+#tag EndBuildAutomation
