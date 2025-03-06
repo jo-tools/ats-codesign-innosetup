@@ -72,11 +72,14 @@
 					Var sBUILD_LOCATION As String = CurrentBuildLocation
 					
 					'Check Environment
+					Var sDOCKER_EXE As String = "docker"
 					If TargetWindows Then 'Xojo IDE is running on Windows
 					sFILE_ACS_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\acs.json echo %USERPROFILE%\.ats-codesign\acs.json").Trim
 					sFILE_AZURE_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\azure.json echo %USERPROFILE%\.ats-codesign\azure.json").Trim
 					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
-					'TODO
+					sDOCKER_EXE = "/usr/local/bin/docker"
+					sFILE_ACS_JSON = DoShellCommand("[ -f ~/.ats-codesign/acs.json ] && echo ~/.ats-codesign/acs.json").Trim
+					sFILE_AZURE_JSON = DoShellCommand("[ -f ~/.ats-codesign/azure.json ] && echo ~/.ats-codesign/azure.json").Trim
 					sBUILD_LOCATION = sBUILD_LOCATION.ReplaceAll("\", "") 'don't escape Path
 					Else
 					Print "AzureTrustedSigning: Xojo IDE running on unknown Target"
@@ -89,13 +92,13 @@
 					
 					'Check Docker
 					Var iCHECK_DOCKER_RESULT As Integer
-					Var sCHECK_DOCKER_EXE As String = DoShellCommand("docker --version", 0, iCHECK_DOCKER_RESULT).Trim
+					Var sCHECK_DOCKER_EXE As String = DoShellCommand(sDOCKER_EXE + " --version", 0, iCHECK_DOCKER_RESULT).Trim
 					If (iCHECK_DOCKER_RESULT <> 0) Or (Not sCHECK_DOCKER_EXE.Contains("Docker")) Or (Not sCHECK_DOCKER_EXE.Contains("version")) Or (Not sCHECK_DOCKER_EXE.Contains("build "))Then
 					Print "AzureTrustedSigning: Docker not available"
 					Return
 					End If
 					
-					Var sCHECK_DOCKER_PROCESS As String = DoShellCommand("docker ps", 0, iCHECK_DOCKER_RESULT).Trim
+					Var sCHECK_DOCKER_PROCESS As String = DoShellCommand(sDOCKER_EXE + " ps", 0, iCHECK_DOCKER_RESULT).Trim
 					If (iCHECK_DOCKER_RESULT <> 0) Then
 					Print "AzureTrustedSigning: Docker not running"
 					Return
@@ -107,7 +110,7 @@
 					Next
 					
 					Var sSIGN_COMMAND As String = _
-					"docker run " + _
+					sDOCKER_EXE + " run " + _
 					"--rm " + _
 					"-v """ + sFILE_ACS_JSON + """:/etc/ats-codesign/acs.json " + _
 					"-v """ + sFILE_AZURE_JSON + """:/etc/ats-codesign/azure.json " + _
@@ -126,7 +129,7 @@
 					
 					If (iSIGN_RESULT <> 125) Then
 					Var iCHECK_DOCKERIMAGE_RESULT As Integer
-					Var sCHECK_DOCKERIMAGE_OUTPUT As String = DoShellCommand("docker image inspect " + sDOCKER_IMAGE, 0, iCHECK_DOCKERIMAGE_RESULT)
+					Var sCHECK_DOCKERIMAGE_OUTPUT As String = DoShellCommand(sDOCKER_EXE + " image inspect " + sDOCKER_IMAGE, 0, iCHECK_DOCKERIMAGE_RESULT)
 					If (iCHECK_DOCKERIMAGE_RESULT <> 0) Then
 					Print "AzureTrustedSigning: Docker Image '" + sDOCKER_IMAGE + "' not available"
 					End If
