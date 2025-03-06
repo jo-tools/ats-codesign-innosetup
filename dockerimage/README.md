@@ -89,9 +89,10 @@ Instead of mounting the two `.json` files, you can also provide the configuratio
 
 #### Timestamp Server
 
-The default Timestamp Server will be: `http://timestamp.acs.microsoft.com`  
-To change it you can set the Environment Variable:
+The Timestamp Server will be automatically chosen by jsign.  
+To change it you can set the Environment Variables:
 - `TIMESTAMP_SERVER=http://timestamp.domain.org`
+- `TIMESTAMP_MODE=[RFC3161|Authenticode]`
 
 ### CodeSign using `ats-codesign.sh`
 
@@ -99,23 +100,73 @@ The included Shell Script `ats-codesign.sh` is a helper script which will
 - pick up the configuration from Environment Variables or the mounted `.json` files
 - perform the Windows CodeSigning using [Azure Trusted Signing](https://azure.microsoft.com/en-us/products/trusted-signing) with [jsign](https://github.com/ebourg/jsign)
 
-#### Example Code Sign Command
+#### Example: Docker Run - ATS CodeSign
 
 The following example will
 - run the Docker Image [jotools/ats-codesign](https://hub.docker.com/r/jotools/ats-codesign)
-- use a different Timestamp Server *(set via Environment Variable)*
 - use configuration from `.json` files stored on the host machine
 - mount a folder on the host machine into `/data`
 - codesign all `.exe`'s and `.dll`'s *(recursively)*
 
 ```
 docker run \
---rm \
--e TIMESTAMP_SERVER=http://timestamp.digicert.com \
--v /local/path/to/acs.json:/etc/ats-codesign/acs.json \
--v /local/path/to/azure.json:/etc/ats-codesign/azure.json \
--v /local/path/to/build-folder:/data \
--w /data \
-jotools/ats-codesign \
-/bin/sh -c "ats-codesign.sh \"./**/*.exe\" \"./**/*.dll\""
+    --rm \
+    -v /local/path/to/acs.json:/etc/ats-codesign/acs.json \
+    -v /local/path/to/azure.json:/etc/ats-codesign/azure.json \
+    -v /local/path/to/build-folder:/data \
+    -w /data \
+    jotools/ats-codesign \
+    /bin/sh -c "ats-codesign.sh \"./**/*.exe\" \"./**/*.dll\""
+```
+
+The same example, but
+- use a different Timestamp Server *(set via Environment Variable)*
+
+```
+docker run \
+    --rm \
+    -e TIMESTAMP_SERVER=http://timestamp.digicert.com \
+    -v /local/path/to/acs.json:/etc/ats-codesign/acs.json \
+    -v /local/path/to/azure.json:/etc/ats-codesign/azure.json \
+    -v /local/path/to/build-folder:/data \
+    -w /data \
+    jotools/ats-codesign \
+    /bin/sh -c "ats-codesign.sh \"./**/*.exe\" \"./**/*.dll\""
+```
+
+#### Example: Docker Container Shell
+
+The following example will
+- use Environment Variables to setup the configuration
+- mount a folder on the host machine into `/data`
+- you then can manually sign files, e.g.:  
+  `ats-codesign.sh "./**/*.exe" "./**/*.dll"`
+
+```
+docker run \
+    --rm \
+    -it \
+    --entrypoint sh \
+    -e AZURE_TENANT_ID="MY_AZURE_TENANT_ID" \
+    -e AZURE_CLIENT_ID="MY_AZURE_CLIENT_ID" \
+    -e AZURE_CLIENT_SECRET="MY_AZURE_CLIENT_SECRET" \
+    -v /local/path/to/build-folder:/data \
+    jotools/ats-codesign
+```
+
+The following example will
+- use the locally stored configuration files `acs.json` and `azure.json`
+- mount a folder on the host machine into `/data`
+- you then can manually sign files, e.g.:  
+  `ats-codesign.sh "./**/*.exe" "./**/*.dll"`
+
+```
+docker run \
+    --rm \
+    -it \
+    --entrypoint sh \
+    -v /local/path/to/acs.json:/etc/ats-codesign/acs.json \
+    -v /local/path/to/azure.json:/etc/ats-codesign/azure.json \
+    -v /local/path/to/build-folder:/data \
+    jotools/ats-codesign
 ```

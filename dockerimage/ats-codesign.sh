@@ -26,8 +26,15 @@ fi
 if [ -z "${ACS_ENDPOINT}" ]; then
 	ACS_ENDPOINT=$( [ -f ${ACS_JSON} ] && cat ${ACS_JSON} | jq -r '.Endpoint')
 fi
-if [ -z "${TIMESTAMP_SERVER}" ]; then
-	TIMESTAMP_SERVER=http://timestamp.acs.microsoft.com
+
+JSIGN_TSAURL=
+if [ ! -z "${TIMESTAMP_SERVER}" ]; then
+	JSIGN_TSAURL="--tsaurl ${TIMESTAMP_SERVER}"
+fi
+
+JSIGN_TSMODE=
+if [ ! -z "${TIMESTAMP_MODE}" ]; then
+	JSIGN_TSMODE="--tsmode ${TIMESTAMP_MODE}"
 fi
 
 echo "Checking Environment"
@@ -75,7 +82,7 @@ jsign --storetype TRUSTEDSIGNING \
 		--keystore ${ACS_ENDPOINT} \
 		--storepass ${AZURE_ACCESS_TOKEN} \
 		--alias ${ACS_ACCOUNT_NAME}/${ACS_CERTIFICATE_PROFILE_NAME} \
-		--tsaurl ${TIMESTAMP_SERVER} \
+		${JSIGN_TSAURL} ${JSIGN_TSMODE} \
 		--replace \
 		${CODESIGN_FILES}
 
