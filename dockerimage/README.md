@@ -1,8 +1,6 @@
 # Docker Image
 
-The Docker Image is based on Ubuntu.
-
-It installs the following components:
+The Docker Image is based on Ubuntu and has the following components installed:
 - A couple of required Libraries
   - curl, jq, openjdk
 - [jsign](https://github.com/ebourg/jsign)  
@@ -150,6 +148,9 @@ docker run \
     -e AZURE_TENANT_ID="MY_AZURE_TENANT_ID" \
     -e AZURE_CLIENT_ID="MY_AZURE_CLIENT_ID" \
     -e AZURE_CLIENT_SECRET="MY_AZURE_CLIENT_SECRET" \
+    -e ACS_ENDPOINT=https://weu.codesigning.azure.net \
+    -e ACS_ACCOUNT_NAME="ACS CodeSigning Account Name" \
+    -e ACS_CERTIFICATE_PROFILE_NAME="ACS Certificate Profile Name" \
     -v /local/path/to/build-folder:/data \
     jotools/ats-codesign
 ```
