@@ -16,17 +16,37 @@
 				End
 				Begin IDEScriptBuildStep AzureTrustedSigning , AppliesTo = 2, Architecture = 0, Target = 0
 					'**************************************************
-					'CodeSign | Azure Trusted Signing | Docker
+					' CodeSign | Azure Trusted Signing | Docker
 					'**************************************************
-					'1. Read the comments in this PostBuild Script
-					'2. Edit the values according to your needs
+					' https://github.com/jo-tools/ats-codesign
 					'**************************************************
-					'3. If it's working for you:
-					'   Do you like it? Does it help you? Has it saved you time and money?
-					'   You're welcome - it's free...
-					'   If you want to say thanks I appreciate a message or a small donation.
-					'   Contact: xojo@jo-tools.ch
-					'   PayPal:  https://paypal.me/jotools
+					' Requirements
+					'**************************************************
+					' 1. Set up Azure Trusted Signing
+					' 2. Have Docker up and running
+					' 3. Read the comments in this Post Build Script,
+					' 4. Modify it according to your needs.
+					'
+					'    Especially look out for sDOCKER_EXE
+					'    You might need to set the full path to the executable
+					'**************************************************
+					' 5. If it's working for you:
+					'    Do you like it? Does it help you? Has it saved you time and money?
+					'    You're welcome - it's free...
+					'    If you want to say thanks I appreciate a message or a small donation.
+					'    Contact: xojo@jo-tools.ch
+					'    PayPal:  https://paypal.me/jotools
+					'**************************************************
+					
+					'**************************************************
+					' Note: Xojo IDE running on Linux
+					'**************************************************
+					' Make sure that docker can be run without requiring 'sudo':
+					' More information e.g. in this article:
+					' https://medium.com/devops-technical-notes-and-manuals/how-to-run-docker-commands-without-sudo-28019814198f
+					' 1. sudo groupadd docker
+					' 2. sudo gpasswd -a $USER docker
+					' 3. (reboot)
 					'**************************************************
 					
 					If DebugBuild Then Return 'don't CodeSign DebugRun's
@@ -77,7 +97,8 @@
 					sFILE_ACS_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\acs.json echo %USERPROFILE%\.ats-codesign\acs.json").Trim
 					sFILE_AZURE_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\azure.json echo %USERPROFILE%\.ats-codesign\azure.json").Trim
 					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
-					sDOCKER_EXE = "/usr/local/bin/docker"
+					sDOCKER_EXE = DoShellCommand("[ -f /usr/local/bin/docker ] && echo /usr/local/bin/docker").Trim
+					If (sDOCKER_EXE = "") Then sDOCKER_EXE = DoShellCommand("[ -f /snap/bin/docker ] && echo /snap/bin/docker").Trim
 					sFILE_ACS_JSON = DoShellCommand("[ -f ~/.ats-codesign/acs.json ] && echo ~/.ats-codesign/acs.json").Trim
 					sFILE_AZURE_JSON = DoShellCommand("[ -f ~/.ats-codesign/azure.json ] && echo ~/.ats-codesign/azure.json").Trim
 					sBUILD_LOCATION = sBUILD_LOCATION.ReplaceAll("\", "") 'don't escape Path
@@ -160,7 +181,7 @@
 					Case 19 'Windows (Intel, 64Bit)
 					Case 25 'Windows(ARM, 64Bit)
 					Else
-					print "CreateZIP: Unsupported Build Target"
+					Print "CreateZIP: Unsupported Build Target"
 					Return
 					End Select
 					
@@ -179,7 +200,11 @@
 					sPROJECT_PATH = DoShellCommand("echo $PROJECT_PATH", 0).Trim
 					If sPROJECT_PATH.Right(1) = "/" Then
 					'no trailing /
-					sPROJECT_PATH = sPROJECT_PATH.Middle(1, sPROJECT_PATH.Length - 1)
+					sPROJECT_PATH = sPROJECT_PATH.Left(sPROJECT_PATH.Length - 1)
+					End If
+					If sBUILD_LOCATION.Right(1) = "/" Then
+					'no trailing /
+					sBUILD_LOCATION = sBUILD_LOCATION.Left(sBUILD_LOCATION.Length - 1)
 					End If
 					sBUILD_LOCATION = sBUILD_LOCATION.ReplaceAll("\", "") 'don't escape Path
 					sCHAR_FOLDER_SEPARATOR = "/"
