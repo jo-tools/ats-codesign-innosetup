@@ -243,8 +243,8 @@ Begin DesktopWindow Window1
       Left            =   20
       LockBottom      =   True
       LockedInPosition=   True
-      LockLeft        =   False
-      LockRight       =   True
+      LockLeft        =   True
+      LockRight       =   False
       LockTop         =   False
       Multiline       =   False
       Scope           =   2
@@ -275,8 +275,8 @@ Begin DesktopWindow Window1
       Left            =   20
       LockBottom      =   True
       LockedInPosition=   True
-      LockLeft        =   False
-      LockRight       =   True
+      LockLeft        =   True
+      LockRight       =   False
       LockTop         =   False
       Multiline       =   False
       Scope           =   2
@@ -307,8 +307,8 @@ Begin DesktopWindow Window1
       Left            =   20
       LockBottom      =   True
       LockedInPosition=   True
-      LockLeft        =   False
-      LockRight       =   True
+      LockLeft        =   True
+      LockRight       =   False
       LockTop         =   False
       Multiline       =   False
       Scope           =   2
@@ -371,8 +371,8 @@ Begin DesktopWindow Window1
       Left            =   300
       LockBottom      =   True
       LockedInPosition=   True
-      LockLeft        =   True
-      LockRight       =   False
+      LockLeft        =   False
+      LockRight       =   True
       LockTop         =   False
       Multiline       =   False
       Scope           =   2
