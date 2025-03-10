@@ -8,7 +8,10 @@ The Docker Image is based on Ubuntu and has the following components installed:
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/)  
   Azure Command-Line Interface
 - [ats-codesign.sh](./ats-codesign.sh)  
-  A custom Shell Script used for Windows CodeSigning using Azure Trusted Signing
+  Custom Shell Script used for Windows CodeSigning using Azure Trusted Signing  
+  Usage: `ats-codesign.sh [FILE] [PATTERN] [@FILELIST]...`  
+  Documentation: [jsign - Command Line Tool: `[FILE] [PATTERN] [@FILELIST]...`](https://ebourg.github.io/jsign/)
+
 
 ### Build Docker Image
 
@@ -104,7 +107,7 @@ The following example will
 - run the Docker Image [jotools/ats-codesign](https://hub.docker.com/r/jotools/ats-codesign)
 - use configuration from `.json` files stored on the host machine
 - mount a folder on the host machine into `/data`
-- codesign all `.exe`'s and `.dll`'s *(recursively)*
+- codesign all `.exe`'s and `.dll`'s in `/data` *(recursively)*
 
 ```
 docker run \
@@ -138,7 +141,8 @@ The following example will
 - use Environment Variables to setup the configuration
 - mount a folder on the host machine into `/data`
 - you then can manually sign files, e.g.:  
-  `ats-codesign.sh "./**/*.exe" "./**/*.dll"`
+  `ats-codesign.sh "./**/*.exe" "./**/*.dll"`  
+  `ats-codesign.sh myapp.exe mylib.dll`
 
 ```
 docker run \
@@ -159,7 +163,8 @@ The following example will
 - use the locally stored configuration files `acs.json` and `azure.json`
 - mount a folder on the host machine into `/data`
 - you then can manually sign files, e.g.:  
-  `ats-codesign.sh "./**/*.exe" "./**/*.dll"`
+  `ats-codesign.sh "./**/*.exe" "./**/*.dll"`  
+  `ats-codesign.sh myapp.exe mylib.dll`
 
 ```
 docker run \

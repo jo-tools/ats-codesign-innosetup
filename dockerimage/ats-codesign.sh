@@ -1,7 +1,8 @@
-#! /bin/sh
+#! /bin/bash
 #
+# ats-codesign.sh [FILE] [PATTERN] [@FILELIST]...
 
-CODESIGN_FILES="$*"
+JSIGN_PARAMETERS=("$@")
 
 echo "Setting up Environment"
 
@@ -57,14 +58,22 @@ fi
 
 echo "Checking Parameters"
 
-if [ -z "${CODESIGN_FILES}" ]; then
-    echo "Parameter CODESIGN_FILES is empty"
+if [ ${#JSIGN_PARAMETERS[@]} -eq 0 ]; then
+    echo "Parameter(s) [FILE] [PATTERN] [@FILELIST]... are empty"
 	ENV_CHECK=0
 fi
 
 if [ ${ENV_CHECK} -ne 1 ]; then
+	echo ""
+	echo "Documentation: see 'Command Line Tool: [FILE] [PATTERN] [@FILELIST]...'"
+	echo "               https://ebourg.github.io/jsign/"
+	echo "Usage:         ats-codesign.sh [FILE] [PATTERN] [@FILELIST]..."
 	exit 10
 fi
+
+#####################
+# Start Codesigning #
+#####################
 
 echo "Fetching AZURE_ACCESS_TOKEN"
 
@@ -76,7 +85,7 @@ if [ $retVal -ne 0 ]; then
 	exit $retVal
 fi
 
-echo "ats-codesign [jsign]: Begin"
+echo "Codesign using jsign"
 
 jsign --storetype TRUSTEDSIGNING \
 		--keystore ${ACS_ENDPOINT} \
@@ -84,14 +93,12 @@ jsign --storetype TRUSTEDSIGNING \
 		--alias ${ACS_ACCOUNT_NAME}/${ACS_CERTIFICATE_PROFILE_NAME} \
 		${JSIGN_TSAURL} ${JSIGN_TSMODE} \
 		--replace \
-		${CODESIGN_FILES}
+		"$@"
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
-	echo "ats-codesign [jsign]: Error occurred during codesigning"
+	echo "Error occurred during codesigning"
 	exit $retVal
 fi
-
-echo "ats-codesign [jsign]: Finished"
 
 exit 0
