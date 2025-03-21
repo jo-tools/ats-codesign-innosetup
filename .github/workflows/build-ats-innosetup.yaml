@@ -1,4 +1,4 @@
-name: Build Docker Image
+name: Build ats-innosetup
 
 on:
   workflow_dispatch:
@@ -16,21 +16,21 @@ on:
 #        type: boolean
 
 env:
-  DOCKER_IMAGE_NAME: jotools/ats-codesign
-  DOCKER_IMAGE_FILENAME: jotools-ats-codesign
+  DOCKER_IMAGE_NAME: jotools/ats-innosetup
+  DOCKER_IMAGE_FILENAME: jotools-ats-innosetup
 
 jobs:
   build:
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        arch: [amd64, arm64v8]
+        arch: [amd64, arm64]
         include:
           - arch: amd64
             platform: linux/amd64
             runner: ubuntu-24.04
-          - arch: arm64v8
-            platform: linux/arm64/v8
+          - arch: arm64
+            platform: linux/arm64
             runner: ubuntu-24.04-arm
 
     steps:
@@ -45,7 +45,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd ./dockerimage
+          cd ./dockerimage/ats-innosetup
           docker build \
               --no-cache \
               --platform ${{ matrix.platform }} \
@@ -63,9 +63,9 @@ jobs:
           docker save ${{ env.DOCKER_IMAGE_NAME }}:${{ inputs.docker_image_tag }}-${{ matrix.arch }} | gzip > ${{ env.DOCKER_IMAGE_FILENAME }}-${{ matrix.arch }}.tgz
 
       - name: Upload Artifacts
-# just upload arm64v8 as Artifact
+# just upload arm64 as Artifact
 # only 500MB storage are included for free on GitHub
-        if: "${{ matrix.arch == 'arm64v8' }}"
+        if: "${{ matrix.arch == 'arm64' }}"
         uses: actions/upload-artifact@v4
         with:
           name: DockerImage-${{ matrix.arch }}
