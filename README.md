@@ -16,13 +16,19 @@ Codesigning is using [jsign](https://github.com/ebourg/jsign) in a Docker Contai
   You'll find some useful links and archived Web content there.
 - Have [Docker](https://www.docker.com/products/docker-desktop/) up and running
 
-### ATS CodeSign | Docker Image `jotools/ats-codesign`
+## Docker Images
 
 While the included example project is written with [Xojo](https://www.xojo.com/) you can use this approach with any other development environment.
 
-Please refer to the [Documentation](./dockerimage/) for the provided [Docker Image `jotools/ats-codesign`](./dockerimage/). It includes information about how to set it all up, along with a codesigning example.
+### ATS CodeSign `jotools/ats-codesign`
 
-### Xojo Example Project
+Please refer to the [Documentation](./dockerimage/ats-codesign/) for the provided [Docker Image `jotools/ats-codesign`](./dockerimage/ats-codesign/). It includes information about how to set it all up, along with a codesigning example.
+
+### ATS InnoSetup `jotools/ats-innosetup`
+
+Please refer to the [Documentation](./dockerimage/ats-innosetup/) for the provided [Docker Image `jotools/ats-innosetup`](./dockerimage/ats-innosetup/). It includes information about how to set it all up, along with an example to create a *(codesigned)* Windows installer.
+
+## Xojo Example Project
 
 This repository includes a Xojo Example Project `ATS CodeSign Docker.xojo_project` which
 - uses a Post Build Script `AzureTrustedSigning` to codesign the Windows builds using [Azure Trusted Signing](https://azure.microsoft.com/en-us/products/trusted-signing)
