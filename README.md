@@ -1,5 +1,5 @@
-# ATS CodeSign | Docker
-Azure Trusted Signing | Docker | jsign
+# ATS CodeSign | InnoSetup | Docker
+Azure Trusted Signing | InnoSetup | Docker | jsign
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
