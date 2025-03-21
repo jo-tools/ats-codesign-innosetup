@@ -1,13 +1,13 @@
 # Docker Image
 
-The Docker Image is based on Ubuntu and has the following components installed:
+The Docker Image is based on Debian and has the following components installed:
 - A couple of required Libraries
   - curl, jq, openjdk
 - [jsign](https://github.com/ebourg/jsign)  
   Authenticode signing tool in Java
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/)  
   Azure Command-Line Interface
-- [ats-codesign.sh](./ats-codesign.sh)  
+- `ats-codesign.sh`  
   Custom Shell Script used for Windows Code Signing using Azure Trusted Signing  
   Usage: `ats-codesign.sh [FILE] [PATTERN] [@FILELIST]...`  
   Documentation: [jsign - Command Line Tool: `[FILE] [PATTERN] [@FILELIST]...`](https://ebourg.github.io/jsign/)
