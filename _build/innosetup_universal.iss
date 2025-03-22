@@ -112,6 +112,8 @@ MinVersion=6.3.9600
 ; We don't set SignedUninstaller, but use it's Default value: yes if a SignTool is set, no otherwise
 ; SignedUninstaller=yes
 
+UninstallDisplayIcon={app}\{#csExeName}
+
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
