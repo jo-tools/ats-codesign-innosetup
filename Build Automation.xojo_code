@@ -51,13 +51,13 @@
 					
 					If DebugBuild Then Return 'don't CodeSign DebugRun's
 					
-					' bSILENT=True : don't show any messages until checking configuration
-					'                once .json required files are found: expect Docker and codesign to work
+					'bSILENT=True : don't show any messages until checking configuration
+					'               once .json required files are found: expect Docker and codesign to work
 					Var bSILENT As Boolean = False
 					
 					'Check Build Target
 					Select Case CurrentBuildTarget
-					Case 3 'Windows (Intel, 32Bit)
+					Case 3  'Windows (Intel, 32Bit)
 					Case 19 'Windows (Intel, 64Bit)
 					Case 25 'Windows(ARM, 64Bit)
 					Else
@@ -82,15 +82,20 @@
 					
 					Select Case PropertyValue("App.StageCode")
 					Case "3" 'Final
-					'sign all .exe's and all .dll's
+					' sign all .exe's and all .dll's
 					sSIGN_FILES.Add("""./**/*.exe""") 'recursively all .exe's
 					sSIGN_FILES.Add("""./**/*.dll""") 'recursively all .dll's
-					else
-					'only sign all .exe's for Beta/Alpha/Development builds
+					Else
+					' only sign all .exe's for Beta/Alpha/Development builds
 					sSIGN_FILES.Add("""./**/*.exe""") 'recursively all .exe's
 					end select
 					
-					Var sDOCKER_IMAGE As String = "jotools/ats-codesign"
+					'Note: In your project use jotools/ats-codesign if you are not using the InnoSetup Build Step.
+					'      It's a smaller Docker Image...
+					'      Should your project use the Post Build Script 'InnoSetup' too, then change here to use jotools/ats-innosetup.
+					'      InnoSetup includes ats-codesign, too. So you don't need having two different Docker Images taking up space on your machine.
+					Var sDOCKER_IMAGE As String = "jotools/ats-codesign" 'or: "jotools/ats-innosetup"
+					
 					Var sFILE_ACS_JSON As String = ""
 					Var sFILE_AZURE_JSON As String = ""
 					Var sBUILD_LOCATION As String = CurrentBuildLocation
@@ -180,7 +185,7 @@
 					
 					If DebugBuild Then Return 'don't create .zip for DebugRuns
 					
-					' bSILENT=True : don't show any error messages
+					'bSILENT=True : don't show any error messages
 					Var bSILENT As Boolean = False
 					
 					'Check Build Target
@@ -313,19 +318,20 @@
 					
 					If DebugBuild Then Return 'don't create a windows installer for DebugRun's
 					
-					' bSILENT=True : don't show any messages until checking configuration
+					'bSILENT=True : don't show any messages until checking configuration
 					Var bSILENT As Boolean = False
 					
-					'Check Build Target
+					'Set InnoSetup Script
+					'Note: This project includes a universal .iss script
+					'      That's why we specify the same .iss for all WIN32, WIN64 and ARM64
 					Var sINNOSETUP_SCRIPT As String
 					Select Case CurrentBuildTarget
 					Case 3 'Windows (Intel, 32Bit)
-					sINNOSETUP_SCRIPT = "_build/innosetup_x86-32bit.iss"
+					sINNOSETUP_SCRIPT = "_build/innosetup_universal.iss"
 					Case 19 'Windows (Intel, 64Bit)
-					sINNOSETUP_SCRIPT = "_build/innosetup_x86-64bit.iss"
+					sINNOSETUP_SCRIPT = "_build/innosetup_universal.iss"
 					Case 25 'Windows(ARM, 64Bit)
-					Print "InnoSetup: TODO"
-					Return
+					sINNOSETUP_SCRIPT = "_build/innosetup_universal.iss"
 					Else
 					If (Not bSILENT) Then Print "InnoSetup: Unsupported Build Target"
 					Return
@@ -342,6 +348,19 @@
 					Case "2" 'Beta
 					Case "3" 'Final
 					End Select
+					
+					'Publisher Website
+					Var sAPP_PUBLISHER_URL As String = "https://www.jo-tools.ch/"
+					
+					'****************************************************
+					' Note: No more changes needed below here
+					'****************************************************
+					' This example includes a universal InnoSetup script.
+					' All required information is being picked up from
+					' the Xojo Project Settings.
+					' Of course: feel free to change and modify it
+					' according to your needs
+					'****************************************************
 					
 					'Xojo Project Settings
 					Var sAPP_NAME As String = CurrentBuildAppName
@@ -381,14 +400,14 @@
 					Return
 					End Select
 					
-					' Set Parameters for InnoSetup Script
+					'Set Parameters for InnoSetup Script
 					Var sISS_csProductName As String = sAPP_PRODUCTNAME
 					Var sISS_csExeName As String = sAPP_NAME
 					Var sISS_csAppPublisher As String = sAPP_COMPANYNAME
-					Var sISS_csAppPublisherURL As String = "https://www.jo-tools.ch/"
+					Var sISS_csAppPublisherURL As String = sAPP_PUBLISHER_URL
 					Var sISS_csOutputBaseFilename As String = sSETUP_BASEFILENAME
 					
-					' Variables for Docker
+					'Variables for Docker
 					Var sDOCKER_IMAGE As String = "jotools/ats-innosetup"
 					Var sFILE_ACS_JSON As String = ""
 					Var sFILE_AZURE_JSON As String = ""
@@ -478,11 +497,22 @@
 					sINNOSETUP_PARAMETERS.Add("/DDoCodeSignATS")
 					End If
 					
+					'Parameters for our universal InnoSetup Script
 					sINNOSETUP_PARAMETERS.Add("/DcsProductName=""" + sISS_csProductName + """")
 					sINNOSETUP_PARAMETERS.Add("/DcsExeName=""" + sISS_csExeName + """")
 					sINNOSETUP_PARAMETERS.Add("/DcsAppPublisher=""" + sISS_csAppPublisher + """")
 					sINNOSETUP_PARAMETERS.Add("/DcsAppPublisherURL=""" + sISS_csAppPublisherURL + """")
 					sINNOSETUP_PARAMETERS.Add("/DcsOutputBaseFilename=""" + sISS_csOutputBaseFilename + """")
+					
+					'Define Build Target for our universal InnoSetup Script
+					Select Case CurrentBuildTarget
+					Case 3 'Windows (Intel, 32Bit)
+					sINNOSETUP_PARAMETERS.Add("/DBuildTargetWIN32")
+					Case 19 'Windows (Intel, 64Bit)
+					sINNOSETUP_PARAMETERS.Add("/DBuildTargetWIN64")
+					Case 25 'Windows(ARM, 64Bit)
+					sINNOSETUP_PARAMETERS.Add("/DBuildTargetARM64")
+					End Select
 					
 					sINNOSETUP_PARAMETERS.Add("/O""Z:/data""") 'Output in Folder
 					sINNOSETUP_PARAMETERS.Add("/Dsourcepath=""Z:/data/" + sISS_RELATIVE_SOURCEPATH + """") 'Folder of built App

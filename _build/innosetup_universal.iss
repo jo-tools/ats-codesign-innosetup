@@ -1,4 +1,26 @@
-; Call this InnoSetup Script with Parameters /DcsProductName, /DcsExeName, ...
+; ******************************************************
+; Parameters for calling this universal InnoSetup Script
+; ******************************************************
+; App / Product Information
+; ------------------------------------------------------
+; /DcsProductName="My Application"
+; /DcsExeName="MyExecutable.exe"
+; /DcsAppPublisher="My App Publisher"
+; /DcsAppPublisherURL="https://www.mycompany.org/"
+; /DcsOutputBaseFilename="Setup_MyApplication"
+; ******************************************************
+; Build Target (for Installation Requirements)
+; ------------------------------------------------------
+; one of the following
+; /DBuildTargetWIN32 | /DBuildTargetWIN64 | /DBuildTargetARM64
+; ******************************************************
+; Enable CodeSigning using Azure Trusted Signing
+; ------------------------------------------------------
+; /DDoCodeSignATS
+;
+; If CodeSigning is enabled: Set CodeSignTool 'ATS'
+; "/SATS=Z:/usr/local/bin/ats-codesign.bat $f"
+; ******************************************************
 
 #ifndef csProductName
   #define csProductName "My Application"
@@ -53,7 +75,20 @@ AppPublisherURL={#csAppPublisherURL}
 
 WizardStyle=modern
 
-DefaultDirName={commonpf}\{#csProductName}
+; Installation Settings
+; Note: Remove 'not arm64' if you want to allow WIN32 or WIN64 apps to run on Windows ARM
+;       This example will only allow installing the ARM64 build on Windows ARM
+#if defined(BuildTargetWIN32)
+  ArchitecturesAllowed=not arm64
+#elif defined(BuildTargetWIN64)
+  ArchitecturesInstallIn64BitMode=x64
+  ArchitecturesAllowed=x64compatible and not arm64
+#elif defined(BuildTargetARM64)
+  ArchitecturesInstallIn64BitMode=arm64
+  ArchitecturesAllowed=arm64
+#endif
+
+DefaultDirName={autopf}\{#csProductName}
 ;since no icons will be created in "{group}", we don't need the wizard to ask for a group name:
 DefaultGroupName=
 DisableProgramGroupPage=yes
@@ -72,7 +107,7 @@ MinVersion=6.3.9600
 
 ; Set Signtool only if called with Parameter /DDoCodeSignATS
 #ifdef DoCodeSignATS
-Signtool=ATS
+  Signtool=ATS
 #endif
 ; We don't set SignedUninstaller, but use it's Default value: yes if a SignTool is set, no otherwise
 ; SignedUninstaller=yes
