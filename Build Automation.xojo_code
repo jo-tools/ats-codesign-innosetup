@@ -311,19 +311,18 @@
 					' 3. (reboot)
 					'**************************************************
 					
-					If DebugBuild Then Return 'don't create an installer for DebugRun's
+					If DebugBuild Then Return 'don't create a windows installer for DebugRun's
 					
 					' bSILENT=True : don't show any messages until checking configuration
-					'                once .json required files are found: expect Docker and codesign to work
 					Var bSILENT As Boolean = False
 					
 					'Check Build Target
 					Var sINNOSETUP_SCRIPT As String
 					Select Case CurrentBuildTarget
 					Case 3 'Windows (Intel, 32Bit)
-					sINNOSETUP_SCRIPT = "innosetup_x86-32bit.iss"
+					sINNOSETUP_SCRIPT = "_build/innosetup_x86-32bit.iss"
 					Case 19 'Windows (Intel, 64Bit)
-					sINNOSETUP_SCRIPT = "innosetup_x86-64bit.iss"
+					sINNOSETUP_SCRIPT = "_build/innosetup_x86-64bit.iss"
 					Case 25 'Windows(ARM, 64Bit)
 					Print "InnoSetup: TODO"
 					Return
@@ -354,6 +353,7 @@
 					'Check Environment
 					Var sDOCKER_EXE As String = "docker"
 					Var sCHAR_FOLDER_SEPARATOR As String
+					Var bAZURE_TRUSTED_SIGNING_AVAILABLE As Boolean
 					
 					If TargetWindows Then 'Xojo IDE is running on Windows
 					sPROJECT_PATH = DoShellCommand("echo %PROJECT_PATH%", 0).Trim
@@ -384,16 +384,24 @@
 					
 					'Check InnoSetup Script
 					If (sINNOSETUP_SCRIPT <> "") Then
+					sINNOSETUP_SCRIPT = sINNOSETUP_SCRIPT.ReplaceAll("/", sCHAR_FOLDER_SEPARATOR).ReplaceAll("\", sCHAR_FOLDER_SEPARATOR)
 					If TargetWindows Then 'Xojo IDE is running on Windows
-					sINNOSETUP_SCRIPT = DoShellCommand("if exist """ + sPROJECT_PATH + "\_build\" + sINNOSETUP_SCRIPT + """ echo _build/" + sINNOSETUP_SCRIPT).Trim
+					sINNOSETUP_SCRIPT = DoShellCommand("if exist """ + sPROJECT_PATH + sCHAR_FOLDER_SEPARATOR + sINNOSETUP_SCRIPT + """ echo " + sPROJECT_PATH + sCHAR_FOLDER_SEPARATOR + sINNOSETUP_SCRIPT).Trim
 					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
-					sINNOSETUP_SCRIPT = DoShellCommand("[ -f """ + sPROJECT_PATH + "/_build/" + sINNOSETUP_SCRIPT + """ ] && echo _build/" + sINNOSETUP_SCRIPT).Trim
+					sINNOSETUP_SCRIPT = DoShellCommand("[ -f """ + sPROJECT_PATH + sCHAR_FOLDER_SEPARATOR + sINNOSETUP_SCRIPT + """ ] && echo " + sPROJECT_PATH + sCHAR_FOLDER_SEPARATOR + sINNOSETUP_SCRIPT).Trim
 					End If
+					End If
+					
+					If (sINNOSETUP_SCRIPT = "") Then
+					If (Not bSILENT) Then Print "InnoSetup: No InnoSetup Script"
+					Return
 					End If
 					
 					If (sFILE_ACS_JSON = "") Or (sFILE_AZURE_JSON = "") Then
 					If (Not bSILENT) Then Print "InnoSetup: acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]"
-					Return
+					bAZURE_TRUSTED_SIGNING_AVAILABLE = False
+					Else
+					bAZURE_TRUSTED_SIGNING_AVAILABLE = True
 					End If
 					
 					'Check Docker
@@ -417,10 +425,13 @@
 					
 					'Run InnoSetup (and CodeSign) in Docker Container
 					Var sINNOSETUP_PARAMETERS() As String
+					If bAZURE_TRUSTED_SIGNING_AVAILABLE Then
 					sINNOSETUP_PARAMETERS.Add("""/SATS=Z:/usr/local/bin/ats-codesign.bat $f""")
+					sINNOSETUP_PARAMETERS.Add("/DDoCodeSignATS")
+					End If
 					sINNOSETUP_PARAMETERS.Add("/O""Z:/data""") 'Output in Folder
 					sINNOSETUP_PARAMETERS.Add("/Dsourcepath=""Z:/data/ATS CodeSign Docker""") 'Folder of built App
-					sINNOSETUP_PARAMETERS.Add("""Z:/data/" + sINNOSETUP_SCRIPT + """")
+					sINNOSETUP_PARAMETERS.Add("""Z:/tmp/innosetup-script.iss""") 'we mount the script to this location
 					
 					Var sINNOSETUP_COMMAND As String = _
 					sDOCKER_EXE + " run " + _
@@ -428,11 +439,14 @@
 					If(sFILE_ACS_JSON <> "", "-v """ + sFILE_ACS_JSON + """:/etc/ats-codesign/acs.json ", "") + _
 					If(sFILE_AZURE_JSON <> "", "-v """ + sFILE_AZURE_JSON + """:/etc/ats-codesign/azure.json ", "") + _
 					"-v """ + sFOLDER_BASE + """:/data " + _
-					"-v """ + sPROJECT_PATH + sCHAR_FOLDER_SEPARATOR + "_build"":/data/_build " + _
+					"-v """ + sINNOSETUP_SCRIPT + """:/tmp/innosetup-script.iss " + _
 					"-w /data " + _
 					"--entrypoint iscc.sh " + _
 					sDOCKER_IMAGE + " " + _
 					"'" + String.FromArray(sINNOSETUP_PARAMETERS, " ").ReplaceAll("$f", "\$f") + "'"
+					
+					Clipboard = sINNOSETUP_COMMAND
+					Return
 					
 					Var iINNOSETUP_RESULT As Integer
 					Var sINNOSETUP_OUTPUT As String = DoShellCommand(sINNOSETUP_COMMAND, 0, iINNOSETUP_RESULT)

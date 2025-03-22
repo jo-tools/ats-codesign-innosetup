@@ -59,8 +59,11 @@ ChangesAssociations=yes
 ; Require Windows 8.1 with Update 1
 MinVersion=6.3.9600
 
-;Signtool={param:SetSignTool|}
+
+; Set Signtool only if called with Parameter /DDoCodeSignATS
+#ifdef DoCodeSignATS
 Signtool=ATS
+#endif
 ; We don't set SignedUninstaller, but use it's Default value: yes if a SignTool is set, no otherwise
 ; SignedUninstaller=yes
 
