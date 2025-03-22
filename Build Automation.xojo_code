@@ -450,6 +450,10 @@
 					'no trailing /
 					sPROJECT_PATH = sPROJECT_PATH.Left(sPROJECT_PATH.Length - 1)
 					End If
+					If sBUILD_LOCATION.Right(1) = "/" Then
+					'no trailing /
+					sBUILD_LOCATION = sBUILD_LOCATION.Left(sBUILD_LOCATION.Length - 1)
+					End If
 					sCHAR_FOLDER_SEPARATOR = "/"
 					sDOCKER_EXE = DoShellCommand("[ -f /usr/local/bin/docker ] && echo /usr/local/bin/docker").Trim
 					If (sDOCKER_EXE = "") Then sDOCKER_EXE = DoShellCommand("[ -f /snap/bin/docker ] && echo /snap/bin/docker").Trim
