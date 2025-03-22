@@ -155,7 +155,8 @@ The following example will
   that should include
   - the application to be packaged in a windows installer
   - the InnoSetup script `my-installer.iss`
-- run InnoSetup to create a codesigned windows installer
+- use entry point `iscc.sh`
+- run InnoSetup to create a *(codesigned)* windows installer
 
 ```
 docker run \
@@ -164,15 +165,18 @@ docker run \
     -v /local/path/to/azure.json:/etc/ats-codesign/azure.json \
     -v /local/path/to/build-folder:/data \
     -w /data \
-    jotools/ats-codesign \
-    /bin/sh -c "iscc.sh [InnoSetup Parameters]"
+    --entrypoint iscc.sh \
+    jotools/ats-innosetup \
+    '"/SCodeSignScript=Z:/usr/local/bin/ats-codesign.bat \$f" /O"Z:/data" /Dsourcepath="Z:/data/My Windows Application" "Z:/data/my-installer.iss"'
 ```
 
 The following example will
 - use the locally stored configuration files `acs.json` and `azure.json`
 - mount a folder on the host machine into `/data`
-- you then can manually create a *(codesigned)* windows installer, e.g.:  
-  `iscc.sh '"/SCodeSignATS=Z:/usr/local/bin/ats-codesign.bat \$f" /O"Z:/data" /Dsourcepath="Z:/data/My Windows Application" "Z:/data/my-innosetup-script.iss"'`
+- run the Docker Container interactively *(removing it after)*
+  - use entry point `sh`
+  - you then can manually create a *(codesigned)* windows installer, e.g.:  
+    `iscc.sh '"/SCodeSignATS=Z:/usr/local/bin/ats-codesign.bat \$f" /O"Z:/data" /Dsourcepath="Z:/data/My Windows Application" "Z:/data/my-installer.iss"'`
 
 ```
 docker run \
@@ -182,5 +186,5 @@ docker run \
     -v /local/path/to/acs.json:/etc/ats-codesign/acs.json \
     -v /local/path/to/azure.json:/etc/ats-codesign/azure.json \
     -v /local/path/to/build-folder:/data \
-    jotools/ats-codesign
+    jotools/ats-innosetup
 ```

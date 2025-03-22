@@ -24,8 +24,8 @@
 					'**************************************************
 					' 1. Set up Azure Trusted Signing
 					' 2. Have Docker up and running
-					' 3. Read the comments in this Post Build Script,
-					' 4. Modify it according to your needs.
+					' 3. Read the comments in this Post Build Script
+					' 4. Modify it according to your needs
 					'
 					'    Especially look out for sDOCKER_EXE
 					'    You might need to set the full path to the executable
@@ -131,10 +131,6 @@
 					End If
 					
 					'CodeSign in Docker Container
-					For i As Integer = sSIGN_FILES.LastIndex DownTo 0
-					sSIGN_FILES(i) = sSIGN_FILES(i).ReplaceAll("""", "\""")
-					Next
-					
 					Var sSIGN_COMMAND As String = _
 					sDOCKER_EXE + " run " + _
 					"--rm " + _
@@ -142,8 +138,9 @@
 					"-v """ + sFILE_AZURE_JSON + """:/etc/ats-codesign/azure.json " + _
 					"-v """ + sBUILD_LOCATION + """:/data " + _
 					"-w /data " + _
+					"--entrypoint ats-codesign.sh " + _
 					sDOCKER_IMAGE + " " + _
-					"/bin/sh -c ""ats-codesign.sh " + String.FromArray(sSIGN_FILES, " ")+ """"
+					String.FromArray(sSIGN_FILES, " ")
 					
 					Var iSIGN_RESULT As Integer
 					Var sSIGN_OUTPUT As String = DoShellCommand(sSIGN_COMMAND, 0, iSIGN_RESULT)
@@ -274,6 +271,184 @@
 					If (Not bSILENT) Then Print "CreateZIP Error" + EndOfLine + EndOfLine + _
 					sZIP_OUTPUT.Trim + EndOfLine + _
 					"[ExitCode: " + iZIP_RESULT.ToString + "]"
+					End If
+					End If
+					
+				End
+				Begin IDEScriptBuildStep InnoSetup , AppliesTo = 2, Architecture = 0, Target = 0
+					'**************************************************
+					' InnoSetup | Azure Trusted Signing | Docker
+					'**************************************************
+					' https://github.com/jo-tools/ats-codesign
+					'**************************************************
+					' Requirements
+					'**************************************************
+					' 1. Set up Azure Trusted Signing
+					' 2. Have Docker up and running
+					' 3. Prepare the InnoSetup Scripts
+					' 4. Read the comments in this Post Build Script
+					' 5. Modify it according to your needs
+					'
+					'    Especially look out for sDOCKER_EXE
+					'    You might need to set the full path to the executable
+					'**************************************************
+					' 6. If it's working for you:
+					'    Do you like it? Does it help you? Has it saved you time and money?
+					'    You're welcome - it's free...
+					'    If you want to say thanks I appreciate a message or a small donation.
+					'    Contact: xojo@jo-tools.ch
+					'    PayPal:  https://paypal.me/jotools
+					'**************************************************
+					
+					'**************************************************
+					' Note: Xojo IDE running on Linux
+					'**************************************************
+					' Make sure that docker can be run without requiring 'sudo':
+					' More information e.g. in this article:
+					' https://medium.com/devops-technical-notes-and-manuals/how-to-run-docker-commands-without-sudo-28019814198f
+					' 1. sudo groupadd docker
+					' 2. sudo gpasswd -a $USER docker
+					' 3. (reboot)
+					'**************************************************
+					
+					If DebugBuild Then Return 'don't create an installer for DebugRun's
+					
+					' bSILENT=True : don't show any messages until checking configuration
+					'                once .json required files are found: expect Docker and codesign to work
+					Var bSILENT As Boolean = False
+					
+					'Check Build Target
+					Var sINNOSETUP_SCRIPT As String
+					Select Case CurrentBuildTarget
+					Case 3 'Windows (Intel, 32Bit)
+					sINNOSETUP_SCRIPT = "innosetup_x86-32bit.iss"
+					Case 19 'Windows (Intel, 64Bit)
+					sINNOSETUP_SCRIPT = "innosetup_x86-64bit.iss"
+					Case 25 'Windows(ARM, 64Bit)
+					Print "InnoSetup: TODO"
+					Return
+					Else
+					If (Not bSILENT) Then Print "InnoSetup: Unsupported Build Target"
+					Return
+					End Select
+					
+					'Don't create Windows Installer for Development and Alpha Builds
+					Select Case PropertyValue("App.StageCode")
+					Case "0" 'Development
+					If (Not bSILENT) Then Print "InnoSetup: Not enabled for Development Builds"
+					Return
+					Case "1" 'Alpha
+					If (Not bSILENT) Then Print "InnoSetup: Not enabled for Alpha Builds"
+					Return
+					Case "2" 'Beta
+					Case "3" 'Final
+					End Select
+					
+					
+					Var sDOCKER_IMAGE As String = "jotools/ats-innosetup"
+					Var sFILE_ACS_JSON As String = ""
+					Var sFILE_AZURE_JSON As String = ""
+					Var sPROJECT_PATH As String
+					Var sBUILD_LOCATION As String = CurrentBuildLocation
+					
+					'Check Environment
+					Var sDOCKER_EXE As String = "docker"
+					Var sCHAR_FOLDER_SEPARATOR As String
+					
+					If TargetWindows Then 'Xojo IDE is running on Windows
+					sPROJECT_PATH = DoShellCommand("echo %PROJECT_PATH%", 0).Trim
+					sCHAR_FOLDER_SEPARATOR = "\"
+					sFILE_ACS_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\acs.json echo %USERPROFILE%\.ats-codesign\acs.json").Trim
+					sFILE_AZURE_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\azure.json echo %USERPROFILE%\.ats-codesign\azure.json").Trim
+					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
+					sPROJECT_PATH = DoShellCommand("echo $PROJECT_PATH", 0).Trim
+					If sPROJECT_PATH.Right(1) = "/" Then
+					'no trailing /
+					sPROJECT_PATH = sPROJECT_PATH.Left(sPROJECT_PATH.Length - 1)
+					End If
+					sCHAR_FOLDER_SEPARATOR = "/"
+					sDOCKER_EXE = DoShellCommand("[ -f /usr/local/bin/docker ] && echo /usr/local/bin/docker").Trim
+					If (sDOCKER_EXE = "") Then sDOCKER_EXE = DoShellCommand("[ -f /snap/bin/docker ] && echo /snap/bin/docker").Trim
+					sFILE_ACS_JSON = DoShellCommand("[ -f ~/.ats-codesign/acs.json ] && echo ~/.ats-codesign/acs.json").Trim
+					sFILE_AZURE_JSON = DoShellCommand("[ -f ~/.ats-codesign/azure.json ] && echo ~/.ats-codesign/azure.json").Trim
+					sBUILD_LOCATION = sBUILD_LOCATION.ReplaceAll("\", "") 'don't escape Path
+					Else
+					If (Not bSILENT) Then Print "InnoSetup: Xojo IDE running on unknown Target"
+					Return
+					End If
+					
+					If (sPROJECT_PATH = "") Then
+					If (Not bSILENT) Then Print "CreateZIP: Could not get the Environment Variable PROJECT_PATH from the Xojo IDE." + EndOfLine + EndOfLine + "Unfortunately, it's empty.... try again after re-launching the Xojo IDE and/or rebooting your machine."
+					Return
+					End If
+					
+					'Check InnoSetup Script
+					If (sINNOSETUP_SCRIPT <> "") Then
+					If TargetWindows Then 'Xojo IDE is running on Windows
+					sINNOSETUP_SCRIPT = DoShellCommand("if exist """ + sPROJECT_PATH + "\_build\" + sINNOSETUP_SCRIPT + """ echo _build/" + sINNOSETUP_SCRIPT).Trim
+					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
+					sINNOSETUP_SCRIPT = DoShellCommand("[ -f """ + sPROJECT_PATH + "/_build/" + sINNOSETUP_SCRIPT + """ ] && echo _build/" + sINNOSETUP_SCRIPT).Trim
+					End If
+					End If
+					
+					If (sFILE_ACS_JSON = "") Or (sFILE_AZURE_JSON = "") Then
+					If (Not bSILENT) Then Print "InnoSetup: acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]"
+					Return
+					End If
+					
+					'Check Docker
+					Var iCHECK_DOCKER_RESULT As Integer
+					Var sCHECK_DOCKER_EXE As String = DoShellCommand(sDOCKER_EXE + " --version", 0, iCHECK_DOCKER_RESULT).Trim
+					If (iCHECK_DOCKER_RESULT <> 0) Or (Not sCHECK_DOCKER_EXE.Contains("Docker")) Or (Not sCHECK_DOCKER_EXE.Contains("version")) Or (Not sCHECK_DOCKER_EXE.Contains("build "))Then
+					Print "InnoSetup: Docker not available"
+					Return
+					End If
+					
+					Var sCHECK_DOCKER_PROCESS As String = DoShellCommand(sDOCKER_EXE + " ps", 0, iCHECK_DOCKER_RESULT).Trim
+					If (iCHECK_DOCKER_RESULT <> 0) Then
+					Print "InnoSetup: Docker not running"
+					Return
+					End If
+					
+					Var sPATH_PARTS() As String = sBUILD_LOCATION.Split(sCHAR_FOLDER_SEPARATOR)
+					Var sAPP_FOLDERNAME As String = sPATH_PARTS(sPATH_PARTS.LastIndex)
+					sPATH_PARTS.RemoveAt(sPATH_PARTS.LastIndex)
+					Var sFOLDER_BASE As String = String.FromArray(sPATH_PARTS, sCHAR_FOLDER_SEPARATOR)
+					
+					'Run InnoSetup (and CodeSign) in Docker Container
+					Var sINNOSETUP_PARAMETERS() As String
+					sINNOSETUP_PARAMETERS.Add("""/SATS=Z:/usr/local/bin/ats-codesign.bat $f""")
+					sINNOSETUP_PARAMETERS.Add("/O""Z:/data""") 'Output in Folder
+					sINNOSETUP_PARAMETERS.Add("/Dsourcepath=""Z:/data/ATS CodeSign Docker""") 'Folder of built App
+					sINNOSETUP_PARAMETERS.Add("""Z:/data/" + sINNOSETUP_SCRIPT + """")
+					
+					Var sINNOSETUP_COMMAND As String = _
+					sDOCKER_EXE + " run " + _
+					"--rm " + _
+					If(sFILE_ACS_JSON <> "", "-v """ + sFILE_ACS_JSON + """:/etc/ats-codesign/acs.json ", "") + _
+					If(sFILE_AZURE_JSON <> "", "-v """ + sFILE_AZURE_JSON + """:/etc/ats-codesign/azure.json ", "") + _
+					"-v """ + sFOLDER_BASE + """:/data " + _
+					"-v """ + sPROJECT_PATH + sCHAR_FOLDER_SEPARATOR + "_build"":/data/_build " + _
+					"-w /data " + _
+					"--entrypoint iscc.sh " + _
+					sDOCKER_IMAGE + " " + _
+					"'" + String.FromArray(sINNOSETUP_PARAMETERS, " ").ReplaceAll("$f", "\$f") + "'"
+					
+					Var iINNOSETUP_RESULT As Integer
+					Var sINNOSETUP_OUTPUT As String = DoShellCommand(sINNOSETUP_COMMAND, 0, iINNOSETUP_RESULT)
+					
+					If (iINNOSETUP_RESULT <> 0) Then
+					Clipboard = sINNOSETUP_OUTPUT
+					Print "InnoSetup: iscc.sh Error" + EndOfLine + _
+					"[ExitCode: " + iINNOSETUP_RESULT.ToString + "]" + EndOfLine + EndOfLine + _
+					"Note: Shell Output is available in Clipboard."
+					
+					If (iINNOSETUP_RESULT <> 125) Then
+					Var iCHECK_DOCKERIMAGE_RESULT As Integer
+					Var sCHECK_DOCKERIMAGE_OUTPUT As String = DoShellCommand(sDOCKER_EXE + " image inspect " + sDOCKER_IMAGE, 0, iCHECK_DOCKERIMAGE_RESULT)
+					If (iCHECK_DOCKERIMAGE_RESULT <> 0) Then
+					Print "InnoSetup: Docker Image '" + sDOCKER_IMAGE + "' not available"
+					End If
 					End If
 					End If
 					

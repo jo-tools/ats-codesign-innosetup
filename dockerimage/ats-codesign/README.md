@@ -107,6 +107,7 @@ The following example will
 - run the Docker Image [jotools/ats-codesign](https://hub.docker.com/r/jotools/ats-codesign)
 - use configuration from `.json` files stored on the host machine
 - mount a folder on the host machine into `/data`
+- use entry point `ats-codesign.sh`
 - codesign all `.exe`'s and `.dll`'s in `/data` *(recursively)*
 
 ```
@@ -116,8 +117,9 @@ docker run \
     -v /local/path/to/azure.json:/etc/ats-codesign/azure.json \
     -v /local/path/to/build-folder:/data \
     -w /data \
+    --entrypoint ats-codesign.sh \
     jotools/ats-codesign \
-    /bin/sh -c "ats-codesign.sh \"./**/*.exe\" \"./**/*.dll\""
+    "./**/*.exe" "./**/*.dll"
 ```
 
 The same example, but
@@ -131,8 +133,9 @@ docker run \
     -v /local/path/to/azure.json:/etc/ats-codesign/azure.json \
     -v /local/path/to/build-folder:/data \
     -w /data \
+    --entrypoint ats-codesign.sh \
     jotools/ats-codesign \
-    /bin/sh -c "ats-codesign.sh \"./**/*.exe\" \"./**/*.dll\""
+    "./**/*.exe" "./**/*.dll"
 ```
 
 #### Example: Docker Container Shell
@@ -140,9 +143,11 @@ docker run \
 The following example will
 - use Environment Variables to setup the configuration
 - mount a folder on the host machine into `/data`
-- you then can manually sign files, e.g.:  
-  `ats-codesign.sh "./**/*.exe" "./**/*.dll"`  
-  `ats-codesign.sh myapp.exe mylib.dll`
+- run the Docker Container interactively *(removing it after)*
+  - use entry point `sh`
+  - you then can manually sign files, e.g.:  
+    `ats-codesign.sh "./**/*.exe" "./**/*.dll"`  
+    `ats-codesign.sh myapp.exe mylib.dll`
 
 ```
 docker run \
@@ -162,9 +167,11 @@ docker run \
 The following example will
 - use the locally stored configuration files `acs.json` and `azure.json`
 - mount a folder on the host machine into `/data`
-- you then can manually sign files, e.g.:  
-  `ats-codesign.sh "./**/*.exe" "./**/*.dll"`  
-  `ats-codesign.sh myapp.exe mylib.dll`
+- run the Docker Container interactively *(removing it after)*
+  - use entry point `sh`
+  - you then can manually sign files, e.g.:  
+    `ats-codesign.sh "./**/*.exe" "./**/*.dll"`  
+    `ats-codesign.sh myapp.exe mylib.dll`
 
 ```
 docker run \
