@@ -288,14 +288,21 @@
 					'**************************************************
 					' Requirements
 					'**************************************************
-					' 1. Set up Azure Trusted Signing
+					' 1. Set up Azure Trusted Signing (optional,
+					'    only if you want a codesigned Installer)
 					' 2. Have Docker up and running
-					' 3. Prepare the InnoSetup Scripts
+					' 3. Put your own InnoSetup Script to the project
+					'    location (or use the universal script provided
+					'    with the example project)
 					' 4. Read the comments in this Post Build Script
 					' 5. Modify it according to your needs
 					'
 					'    Especially look out for sDOCKER_EXE
 					'    You might need to set the full path to the executable
+					'
+					'    And at least change the sAPP_PUBLISHER_URL to
+					'    your own Website if you're using the provided
+					'    universal InnoSetup script
 					'**************************************************
 					' 6. If it's working for you:
 					'    Do you like it? Does it help you? Has it saved you time and money?

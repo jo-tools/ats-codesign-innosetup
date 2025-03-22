@@ -4,8 +4,9 @@ Azure Trusted Signing | InnoSetup | Docker | jsign
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ## Description
-Are you distributing Windows Software outside of the Microsoft Store? For your users best experience and confidence, your applications should be codesigned.
+Are you distributing Windows Software outside of the Microsoft Store? For your users best experience and confidence, your applications should shipped as a windows installer and be codesigned.
 
+### Codesigning
 This example shows how to codesign using [Azure Trusted Signing](https://azure.microsoft.com/en-us/products/trusted-signing).  
 Codesigning is using [jsign](https://github.com/ebourg/jsign) in a Docker Container [`jotools/ats-codesign`](https://hub.docker.com/r/jotools/ats-codesign). This allows codesigning to be performed on a host machine running on either Windows, macOS or Linux.
 
@@ -15,6 +16,11 @@ Codesigning is using [jsign](https://github.com/ebourg/jsign) in a Docker Contai
   To [get you started]((https://learn.microsoft.com/en-us/azure/trusted-signing/quickstart)) have a look at the included [docs](./docs/).  
   You'll find some useful links and archived Web content there.
 - Have [Docker](https://www.docker.com/products/docker-desktop/) up and running
+
+### InnoSetup
+This example shows how build a *(codesigned)* windows installer using [InnoSetup](https://jrsoftware.org/isinfo.php).  
+Creating the windows installer is being done in a Docker Container [`jotools/ats-codesign`](https://hub.docker.com/r/jotools/ats-codesign). This allows creating the windows installer on a host machine running on either Windows, macOS or Linux.
+
 
 ## Docker Images
 
@@ -32,7 +38,10 @@ Please refer to the [Documentation](./dockerimage/ats-innosetup/) for the provid
 
 This repository includes a Xojo Example Project `ATS CodeSign Docker.xojo_project` which
 - uses a Post Build Script `AzureTrustedSigning` to codesign the Windows builds using [Azure Trusted Signing](https://azure.microsoft.com/en-us/products/trusted-signing)
-- uses a Docker Container ([jotools/ats-codesign](https://hub.docker.com/r/jotools/ats-codesign)) to perform the codesigning using [jsign](https://github.com/ebourg/jsign)
+  - using the Docker Container ([jotools/ats-codesign](https://hub.docker.com/r/jotools/ats-codesign)) to perform the codesigning using [jsign](https://github.com/ebourg/jsign)
+- uses a Post Build Script `CreateZIP` to package the built and codesigned application in a `.zip`
+- uses a Post Build Script `InnoSetup` to build a *(codesigned)* windows installer
+  - using the Docker Container ([jotools/ats-innosetup](https://hub.docker.com/r/jotools/ats-innosetup)) to create the windows installer using [InnoSetup](https://jrsoftware.org/isinfo.php)
 
 This allows the Windows application to be built and codesigned with the Xojo IDE running on all Windows, macOS or Linux.
 
@@ -44,6 +53,9 @@ Xojo Example Project: ATS CodeSign | Docker
 Code Signature *(Codesigned with Xojo IDE running on macOS)*
 ![ScreenShot: Code Signature - Codesigned with Xojo IDE running on macOS](screenshots/code-signature.png?raw=true)
 
+Codesigned Windows Installer *(Created and codesigned with Xojo IDE running on macOS)*
+![ScreenShot: Codesigned Windows Installer - Created and codesigned with Xojo IDE running on macOS](screenshots/codesigned-Installer.png?raw=true)
+
 
 ## Xojo
 ### Requirements
@@ -54,17 +66,47 @@ The Desktop application Xojo example project `ATS CodeSign Docker.xojo_project` 
 - API 2
 
 ### How to use in your own Xojo project?
+
+#### AzureTrustedSigning
 1. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `AzureTrustedSigning` provided in `ATS CodeSign Docker.xojo_project`
-3. Make sure this Post Build Script runs after the Step 'Windows: Build'
-4. Read the comments in the provided Post Build Script, modify it according to your needs  
+2. Make sure this Post Build Script runs after the Step 'Windows: Build'
+3. Read the comments in the provided Post Build Script, modify it according to your needs  
    The default settings are:
    - use the Docker Container [`jotools/ats-codesign`](https://hub.docker.com/r/jotools/ats-codesign)
      - *you might want to build your own Docker Container and use that one instead*
+     - *if you're using the `InnoSetup` step as well, then change it to use the Docker Container [`jotools/ats-innosetup`](https://hub.docker.com/r/jotools/ats-innosetup)* so that you don't need having two different Docker Images taking up space on your machine
    - Codesign Final and Beta Builds
      - *no Codesigning for Alpha- and Development Builds*
    - Codesign all `.exe` and `.dll` files for Final Builds
      - *Codesign just all `.exe`, but not the `.dll` files for Beta/Alpha/Development Builds*
 
+#### CreateZIP
+
+1. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `CreateZIP` provided in `ATS CodeSign Docker.xojo_project`
+2. Make sure this Post Build Script runs after the Step 'Windows: Build' *(and after `AzureTrustedSigning` to ensure you zip the codesigned application)*
+3. Read the comments in the provided Post Build Script, modify it according to your needs
+
+#### InnoSetup
+
+1. Copy the folder and file `_build/innosetup_universal.iss` to your project location
+   - *this is a universal InnoSetup script which should fit basic Xojo built applications*
+     - *it's prepared for all Windows Build Targets (WIN32, WIN64, ARM64)*
+     - *it uses parameters so that it can be configured from within the Post Build Script*
+   - *or use your own InnoSetup script*
+2. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `InnoSetup` provided in `ATS CodeSign Docker.xojo_project`
+3. Make sure this Post Build Script runs after the Step 'Windows: Build' *(and after `AzureTrustedSigning` to ensure you include the codesigned application in the windows installer)*
+4. Read the comments in the provided Post Build Script, modify it according to your needs *(e.g. change the value of `sAPP_PUBLISHER_URL` to your own website)*  
+   The example Post Build Script is designed to be quite generic and using the provided universal innosetup script:
+   - use the Docker Container [`jotools/ats-innosetup`](https://hub.docker.com/r/jotools/ats-innosetup)
+     - *you might want to build your own Docker Container and use that one instead*
+   - Create a Windows Installer for Final and Beta Builds
+     - *no Windows Installer for Alpha- and Development Builds*
+   - Picks up necessary information from the Xojo Project *(so make sure you've filled out the values in the Xojo IDE under 'Build Settings: Windows)*, e.g.
+     - App.ProductName, App.CompanyName
+     - Filename of the application's `.exe`
+   - Picks up the configuration of `AzureTrustedSigning`
+     - if available, it codesign the (Un)Installer
+     - if not found, it ignores codesigning and just creates an installer
 
 ## About
 Juerg Otter is a long term user of Xojo and working for [CM Informatik AG](https://cmiag.ch/). Their Application [CMI LehrerOffice](https://cmi-bildung.ch/) is a Xojo Design Award Winner 2018. In his leisure time Juerg provides some [bits and pieces for Xojo Developers](https://www.jo-tools.ch/).
