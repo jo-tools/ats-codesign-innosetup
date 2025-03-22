@@ -345,12 +345,12 @@
 					
 					'Xojo Project Settings
 					Var sAPP_NAME As String = CurrentBuildAppName
+					If (sAPP_NAME.Right(4) = ".exe") Then
+					sAPP_NAME = sAPP_NAME.Left(sAPP_NAME.Length - 4)
+					End If
 					Var sAPP_PRODUCTNAME As String = PropertyValue("App.ProductName")
 					If (sAPP_PRODUCTNAME = "") Then
 					sAPP_PRODUCTNAME = sAPP_NAME
-					If (sAPP_PRODUCTNAME.Right(4) = ".exe") Then
-					sAPP_PRODUCTNAME = sAPP_PRODUCTNAME.Left(sAPP_PRODUCTNAME.Length - 4)
-					End If
 					End If
 					Var sAPP_COMPANYNAME As String = PropertyValue("App.CompanyName")
 					Var sBUILD_LOCATION As String = CurrentBuildLocation
@@ -372,11 +372,11 @@
 					Var sSETUP_BASEFILENAME As String
 					Select Case CurrentBuildTarget
 					Case 3 'Windows (Intel, 32Bit)
-					sSETUP_BASEFILENAME = "Setup_" + sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Intel_32Bit"
+					sSETUP_BASEFILENAME = sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Setup_Intel_32Bit"
 					Case 19 'Windows (Intel, 64Bit)
-					sSETUP_BASEFILENAME = "Setup_" + sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Intel_64Bit"
+					sSETUP_BASEFILENAME = sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Setup_Intel_64Bit"
 					Case 25 'Windows(ARM, 64Bit)
-					sSETUP_BASEFILENAME = "Setup_" + sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_ARM_64Bit"
+					sSETUP_BASEFILENAME = sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Setup_ARM_64Bit"
 					Else
 					Return
 					End Select
@@ -465,7 +465,10 @@
 					Var sPATH_PARTS() As String = sBUILD_LOCATION.Split(sCHAR_FOLDER_SEPARATOR)
 					Var sAPP_FOLDERNAME As String = sPATH_PARTS(sPATH_PARTS.LastIndex)
 					sPATH_PARTS.RemoveAt(sPATH_PARTS.LastIndex)
+					Var sAPP_PARENT_FOLDERNAME As String = sPATH_PARTS(sPATH_PARTS.LastIndex)
+					sPATH_PARTS.RemoveAt(sPATH_PARTS.LastIndex)
 					Var sFOLDER_BASE As String = String.FromArray(sPATH_PARTS, sCHAR_FOLDER_SEPARATOR)
+					Var sISS_RELATIVE_SOURCEPATH As String = sAPP_PARENT_FOLDERNAME + "/" + sAPP_FOLDERNAME
 					
 					'Run InnoSetup (and CodeSign) in Docker Container
 					Var sINNOSETUP_PARAMETERS() As String
@@ -482,7 +485,7 @@
 					sINNOSETUP_PARAMETERS.Add("/DcsOutputBaseFilename=""" + sISS_csOutputBaseFilename + """")
 					
 					sINNOSETUP_PARAMETERS.Add("/O""Z:/data""") 'Output in Folder
-					sINNOSETUP_PARAMETERS.Add("/Dsourcepath=""Z:/data/ATS CodeSign Docker""") 'Folder of built App
+					sINNOSETUP_PARAMETERS.Add("/Dsourcepath=""Z:/data/" + sISS_RELATIVE_SOURCEPATH + """") 'Folder of built App
 					sINNOSETUP_PARAMETERS.Add("""Z:/tmp/innosetup-script.iss""") 'we mount the script to this location
 					
 					Var sINNOSETUP_COMMAND As String = _
