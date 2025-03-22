@@ -53,7 +53,9 @@
 					
 					'bSILENT=True : don't show any messages until checking configuration
 					'               once .json required files are found: expect Docker and codesign to work
-					Var bSILENT As Boolean = False
+					'               use this e.g. in Open Source projects so that your builds will be codesigned,
+					'               but if others are building the project it won't show messages to them
+					Var bSILENT As Boolean = False 'in this example project we want to show if it's not going to work
 					
 					'Check Build Target
 					Select Case CurrentBuildTarget
@@ -96,8 +98,8 @@
 					'      InnoSetup includes ats-codesign, too. So you don't need having two different Docker Images taking up space on your machine.
 					Var sDOCKER_IMAGE As String = "jotools/ats-codesign" 'or: "jotools/ats-innosetup"
 					
-					Var sFILE_ACS_JSON As String = ""
-					Var sFILE_AZURE_JSON As String = ""
+					Var sFILE_ACS_JSON As String = "" 'will be searched in ~/.ats-codesign
+					Var sFILE_AZURE_JSON As String = "" 'will be searched in ~/.ats-codesign
 					Var sBUILD_LOCATION As String = CurrentBuildLocation
 					
 					'Check Environment
@@ -288,8 +290,8 @@
 					'**************************************************
 					' Requirements
 					'**************************************************
-					' 1. Set up Azure Trusted Signing (optional,
-					'    only if you want a codesigned Installer)
+					' 1. Optional: Set up Azure Trusted Signing
+					'    (only if you want a codesigned Installer)
 					' 2. Have Docker up and running
 					' 3. Put your own InnoSetup Script to the project
 					'    location (or use the universal script provided
@@ -326,11 +328,20 @@
 					If DebugBuild Then Return 'don't create a windows installer for DebugRun's
 					
 					'bSILENT=True : don't show any messages until checking configuration
-					Var bSILENT As Boolean = False
+					Var bSILENT As Boolean = False 'in this example project we want to show if it's not going to work
+					
+					'bVERYSILENT=True : don't show any messages at all - even if Docker not Available or InnoSetup errors
+					'                   use this e.g. in Open Source projects so that your builds will get an installer,
+					'                   but if others are building the project it won't show messages to them if that fails
+					Var bVERYSILENT As Boolean = False 'in this example project we want to show if it's not going to work
+					
+					'Sanity Check
+					If bVERYSILENT Then bSILENT = True
 					
 					'Set InnoSetup Script
 					'Note: This project includes a universal .iss script
 					'      That's why we specify the same .iss for all WIN32, WIN64 and ARM64
+					'Note: Folder Separator in this variable can be both \ or /
 					Var sINNOSETUP_SCRIPT As String
 					Select Case CurrentBuildTarget
 					Case 3 'Windows (Intel, 32Bit)
@@ -370,6 +381,7 @@
 					'****************************************************
 					
 					'Xojo Project Settings
+					Var sBUILD_LOCATION As String = CurrentBuildLocation
 					Var sAPP_NAME As String = CurrentBuildAppName
 					If (sAPP_NAME.Right(4) = ".exe") Then
 					sAPP_NAME = sAPP_NAME.Left(sAPP_NAME.Length - 4)
@@ -379,7 +391,9 @@
 					sAPP_PRODUCTNAME = sAPP_NAME
 					End If
 					Var sAPP_COMPANYNAME As String = PropertyValue("App.CompanyName")
-					Var sBUILD_LOCATION As String = CurrentBuildLocation
+					If (sAPP_COMPANYNAME = "") Then
+					sAPP_COMPANYNAME = sAPP_NAME
+					End If
 					
 					'Check Stage Code for Installer Filename
 					Var sSTAGECODE_SUFFIX As String
@@ -416,8 +430,8 @@
 					
 					'Variables for Docker
 					Var sDOCKER_IMAGE As String = "jotools/ats-innosetup"
-					Var sFILE_ACS_JSON As String = ""
-					Var sFILE_AZURE_JSON As String = ""
+					Var sFILE_ACS_JSON As String = "" 'will be searched in ~/.ats-codesign
+					Var sFILE_AZURE_JSON As String = "" 'will be searched in ~/.ats-codesign
 					Var sPROJECT_PATH As String
 					
 					'Check Environment
@@ -468,7 +482,10 @@
 					End If
 					
 					If (sFILE_ACS_JSON = "") Or (sFILE_AZURE_JSON = "") Then
-					If (Not bSILENT) Then Print "InnoSetup: acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]"
+					If (Not bSILENT) Then
+					Print "InnoSetup: acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]" + EndOfLine + _
+					"Proceeding without codesigning the windows installer"
+					End If
 					bAZURE_TRUSTED_SIGNING_AVAILABLE = False
 					Else
 					bAZURE_TRUSTED_SIGNING_AVAILABLE = True
@@ -478,13 +495,13 @@
 					Var iCHECK_DOCKER_RESULT As Integer
 					Var sCHECK_DOCKER_EXE As String = DoShellCommand(sDOCKER_EXE + " --version", 0, iCHECK_DOCKER_RESULT).Trim
 					If (iCHECK_DOCKER_RESULT <> 0) Or (Not sCHECK_DOCKER_EXE.Contains("Docker")) Or (Not sCHECK_DOCKER_EXE.Contains("version")) Or (Not sCHECK_DOCKER_EXE.Contains("build "))Then
-					Print "InnoSetup: Docker not available"
+					If (Not bVERYSILENT) Then Print "InnoSetup: Docker not available"
 					Return
 					End If
 					
 					Var sCHECK_DOCKER_PROCESS As String = DoShellCommand(sDOCKER_EXE + " ps", 0, iCHECK_DOCKER_RESULT).Trim
 					If (iCHECK_DOCKER_RESULT <> 0) Then
-					Print "InnoSetup: Docker not running"
+					If (Not bVERYSILENT) Then Print "InnoSetup: Docker not running"
 					Return
 					End If
 					
@@ -540,7 +557,7 @@
 					Var iINNOSETUP_RESULT As Integer
 					Var sINNOSETUP_OUTPUT As String = DoShellCommand(sINNOSETUP_COMMAND, 0, iINNOSETUP_RESULT)
 					
-					If (iINNOSETUP_RESULT <> 0) Then
+					If (iINNOSETUP_RESULT <> 0) And (Not bVERYSILENT) Then
 					Clipboard = sINNOSETUP_OUTPUT
 					Print "InnoSetup: iscc.sh Error" + EndOfLine + _
 					"[ExitCode: " + iINNOSETUP_RESULT.ToString + "]" + EndOfLine + EndOfLine + _
