@@ -1,8 +1,21 @@
-#define csProductName "ATS CodeSign Docker"
-#define csExeName "ATS CodeSign Docker.exe"
-#define csAppPublisher "jo-tools.ch"
-#define csAppPublisherURL "https://www.jo-tools.ch/"
-#define csOutputBaseFilename "Setup_ATS_CodeSign_Docker_Windows_Intel_32Bit"
+; Call this InnoSetup Script with Parameters /DcsProductName, /DcsExeName, ...
+
+#ifndef csProductName
+  #define csProductName "My Application"
+#endif
+#ifndef csExeName
+  #define csExeName "MyExecutable.exe"
+#endif
+#ifndef csAppPublisher
+  #define csAppPublisher "My App Publisher"
+#endif
+#ifndef csAppPublisherURL
+  #define csAppPublisherURL "https://www.mycompany.org/"
+#endif
+#ifndef csOutputBaseFilename
+  #define csOutputBaseFilename "Setup_MyApplication"
+#endif
+
 
 #define ApplicationVersion	GetFileProductVersion(AddBackslash(SourcePath) + csExeName)
 

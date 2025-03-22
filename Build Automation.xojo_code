@@ -343,12 +343,56 @@
 					Case "3" 'Final
 					End Select
 					
+					'Xojo Project Settings
+					Var sAPP_NAME As String = CurrentBuildAppName
+					Var sAPP_PRODUCTNAME As String = PropertyValue("App.ProductName")
+					If (sAPP_PRODUCTNAME = "") Then
+					sAPP_PRODUCTNAME = sAPP_NAME
+					If (sAPP_PRODUCTNAME.Right(4) = ".exe") Then
+					sAPP_PRODUCTNAME = sAPP_PRODUCTNAME.Left(sAPP_PRODUCTNAME.Length - 4)
+					End If
+					End If
+					Var sAPP_COMPANYNAME As String = PropertyValue("App.CompanyName")
+					Var sBUILD_LOCATION As String = CurrentBuildLocation
 					
+					'Check Stage Code for Installer Filename
+					Var sSTAGECODE_SUFFIX As String
+					Select Case PropertyValue("App.StageCode")
+					Case "0" 'Development
+					sSTAGECODE_SUFFIX = "-dev"
+					Case "1" 'Alpha
+					sSTAGECODE_SUFFIX = "-alpha"
+					Case "2" 'Beta
+					sSTAGECODE_SUFFIX = "-beta"
+					Case "3" 'Final
+					'not used in filename
+					End Select
+					
+					'Build Installer Filename
+					Var sSETUP_BASEFILENAME As String
+					Select Case CurrentBuildTarget
+					Case 3 'Windows (Intel, 32Bit)
+					sSETUP_BASEFILENAME = "Setup_" + sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Intel_32Bit"
+					Case 19 'Windows (Intel, 64Bit)
+					sSETUP_BASEFILENAME = "Setup_" + sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Intel_64Bit"
+					Case 25 'Windows(ARM, 64Bit)
+					sSETUP_BASEFILENAME = "Setup_" + sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_ARM_64Bit"
+					Else
+					Return
+					End Select
+					
+					' Set Parameters for InnoSetup Script
+					Var sISS_csProductName As String = sAPP_PRODUCTNAME
+					Var sISS_csExeName As String = sAPP_NAME
+					Var sISS_csAppPublisher As String = sAPP_COMPANYNAME
+					Var sISS_csAppPublisherURL As String = "https://www.jo-tools.ch/"
+					Var sISS_csOutputBaseFilename As String = sSETUP_BASEFILENAME
+					
+					' Variables for Docker
 					Var sDOCKER_IMAGE As String = "jotools/ats-innosetup"
 					Var sFILE_ACS_JSON As String = ""
 					Var sFILE_AZURE_JSON As String = ""
 					Var sPROJECT_PATH As String
-					Var sBUILD_LOCATION As String = CurrentBuildLocation
 					
 					'Check Environment
 					Var sDOCKER_EXE As String = "docker"
@@ -425,10 +469,18 @@
 					
 					'Run InnoSetup (and CodeSign) in Docker Container
 					Var sINNOSETUP_PARAMETERS() As String
+					
 					If bAZURE_TRUSTED_SIGNING_AVAILABLE Then
 					sINNOSETUP_PARAMETERS.Add("""/SATS=Z:/usr/local/bin/ats-codesign.bat $f""")
 					sINNOSETUP_PARAMETERS.Add("/DDoCodeSignATS")
 					End If
+					
+					sINNOSETUP_PARAMETERS.Add("/DcsProductName=""" + sISS_csProductName + """")
+					sINNOSETUP_PARAMETERS.Add("/DcsExeName=""" + sISS_csExeName + """")
+					sINNOSETUP_PARAMETERS.Add("/DcsAppPublisher=""" + sISS_csAppPublisher + """")
+					sINNOSETUP_PARAMETERS.Add("/DcsAppPublisherURL=""" + sISS_csAppPublisherURL + """")
+					sINNOSETUP_PARAMETERS.Add("/DcsOutputBaseFilename=""" + sISS_csOutputBaseFilename + """")
+					
 					sINNOSETUP_PARAMETERS.Add("/O""Z:/data""") 'Output in Folder
 					sINNOSETUP_PARAMETERS.Add("/Dsourcepath=""Z:/data/ATS CodeSign Docker""") 'Folder of built App
 					sINNOSETUP_PARAMETERS.Add("""Z:/tmp/innosetup-script.iss""") 'we mount the script to this location
@@ -444,9 +496,6 @@
 					"--entrypoint iscc.sh " + _
 					sDOCKER_IMAGE + " " + _
 					"'" + String.FromArray(sINNOSETUP_PARAMETERS, " ").ReplaceAll("$f", "\$f") + "'"
-					
-					Clipboard = sINNOSETUP_COMMAND
-					Return
 					
 					Var iINNOSETUP_RESULT As Integer
 					Var sINNOSETUP_OUTPUT As String = DoShellCommand(sINNOSETUP_COMMAND, 0, iINNOSETUP_RESULT)
