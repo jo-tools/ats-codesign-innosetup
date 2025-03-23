@@ -1,4 +1,4 @@
-name: Build ats-innosetup
+name: Build jotools-innosetup
 
 on:
   workflow_dispatch:
@@ -16,8 +16,8 @@ on:
 #        type: boolean
 
 env:
-  DOCKER_IMAGE_NAME: jotools/ats-innosetup
-  DOCKER_IMAGE_FILENAME: jotools-ats-innosetup
+  DOCKER_IMAGE_NAME: jotools/innosetup
+  DOCKER_IMAGE_FILENAME: jotools-innosetup
 
 jobs:
   build:
@@ -45,7 +45,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd ./dockerimage/ats-innosetup
+          cd ./dockerimage/innosetup
           docker build \
               --no-cache \
               --platform ${{ matrix.platform }} \

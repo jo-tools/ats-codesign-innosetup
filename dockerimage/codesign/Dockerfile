@@ -33,9 +33,11 @@ RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 COPY ./scripts /usr/local/bin
 
 # CHMOD JOTOOLS SCRIPTS EXECUTABLE
-RUN chmod 755 /usr/local/bin/ats-codesign.sh
+RUN chmod 755 /usr/local/bin/ats-codesign.sh \
+	&& chmod 755 /usr/local/bin/pfx-codesign.sh
 
 #PREPARE CONTAINER
-RUN mkdir -p /etc/ats-codesign
-RUN mkdir -p /data
+RUN mkdir -p /etc/ats-codesign \
+	&& mkdir -p /etc/pfx-codesign \
+	&& mkdir -p /data
 WORKDIR /data

@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 
-DOCKERIMAGE=jotools/ats-codesign
+DOCKERIMAGE=jotools/codesign
 VERSION=$1
 
 if [ -z "$VERSION" ]; then

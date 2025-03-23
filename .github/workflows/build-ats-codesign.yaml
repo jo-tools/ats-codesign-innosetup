@@ -1,4 +1,4 @@
-name: Build ats-codesign
+name: Build jotools-codesign
 
 on:
   workflow_dispatch:
@@ -16,8 +16,8 @@ on:
 #        type: boolean
 
 env:
-  DOCKER_IMAGE_NAME: jotools/ats-codesign
-  DOCKER_IMAGE_FILENAME: jotools-ats-codesign
+  DOCKER_IMAGE_NAME: jotools/codesign
+  DOCKER_IMAGE_FILENAME: jotools-codesign
 
 jobs:
   build:
@@ -45,7 +45,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd ./dockerimage/ats-codesign
+          cd ./dockerimage/codesign
           docker build \
               --no-cache \
               --platform ${{ matrix.platform }} \

@@ -12,7 +12,7 @@ REM
 REM The issue is that cmd /c start /wait will run asychronous :(
 REM This .bat needs to wait until CodeSigning is really finished.
 REM We do this by waiting for a file to be written by
-REM ats-codesign-wine32.sh
+REM ats-codesign-wine.sh
 
 SET FILE="%*"
 SET LookForFile="%FILE%.signed"
