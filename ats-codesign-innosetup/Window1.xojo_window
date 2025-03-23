@@ -61,7 +61,7 @@ Begin DesktopWindow Window1
       Italic          =   False
       Left            =   108
       LockBottom      =   False
-      LockedInPosition=   False
+      LockedInPosition=   True
       LockLeft        =   True
       LockRight       =   True
       LockTop         =   True
@@ -153,7 +153,7 @@ Begin DesktopWindow Window1
       Italic          =   False
       Left            =   350
       LockBottom      =   False
-      LockedInPosition=   False
+      LockedInPosition=   True
       LockLeft        =   False
       LockRight       =   True
       LockTop         =   True
@@ -368,7 +368,7 @@ Begin DesktopWindow Window1
       Height          =   20
       Index           =   -2147483648
       Italic          =   False
-      Left            =   300
+      Left            =   280
       LockBottom      =   True
       LockedInPosition=   True
       LockLeft        =   False
@@ -388,7 +388,7 @@ Begin DesktopWindow Window1
       Transparent     =   False
       Underline       =   False
       Visible         =   True
-      Width           =   280
+      Width           =   300
    End
    Begin DesktopLabel labLinkQuickstart
       AllowAutoDeactivate=   True
@@ -400,7 +400,7 @@ Begin DesktopWindow Window1
       Height          =   30
       Index           =   -2147483648
       Italic          =   False
-      Left            =   300
+      Left            =   280
       LockBottom      =   True
       LockedInPosition=   True
       LockLeft        =   False
@@ -420,7 +420,7 @@ Begin DesktopWindow Window1
       Transparent     =   False
       Underline       =   True
       Visible         =   True
-      Width           =   280
+      Width           =   300
    End
    Begin DesktopLabel labLinkMelatonin
       AllowAutoDeactivate=   True
@@ -432,7 +432,7 @@ Begin DesktopWindow Window1
       Height          =   30
       Index           =   -2147483648
       Italic          =   False
-      Left            =   300
+      Left            =   280
       LockBottom      =   True
       LockedInPosition=   True
       LockLeft        =   False
@@ -452,7 +452,7 @@ Begin DesktopWindow Window1
       Transparent     =   False
       Underline       =   True
       Visible         =   True
-      Width           =   280
+      Width           =   300
    End
    Begin DesktopLabel labLinkKoalaDocs
       AllowAutoDeactivate=   True
@@ -464,7 +464,7 @@ Begin DesktopWindow Window1
       Height          =   30
       Index           =   -2147483648
       Italic          =   False
-      Left            =   300
+      Left            =   280
       LockBottom      =   True
       LockedInPosition=   True
       LockLeft        =   False
@@ -484,7 +484,7 @@ Begin DesktopWindow Window1
       Transparent     =   False
       Underline       =   True
       Visible         =   True
-      Width           =   280
+      Width           =   300
    End
    Begin DesktopSeparator sepBottom
       Active          =   False
