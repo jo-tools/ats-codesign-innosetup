@@ -14,28 +14,32 @@
 			Begin BuildStepList Windows
 				Begin BuildProjectStep Build
 				End
-				Begin IDEScriptBuildStep AzureTrustedSigning , AppliesTo = 2, Architecture = 0, Target = 0
+				Begin IDEScriptBuildStep CodeSign , AppliesTo = 2, Architecture = 0, Target = 0
 					'**************************************************
-					' CodeSign | Azure Trusted Signing | Docker
+					' CodeSign | Azure Trusted Signing | PFX | Docker
 					'**************************************************
 					' https://github.com/jo-tools/ats-codesign
 					'**************************************************
 					' Requirements
 					'**************************************************
-					' 1. Set up Azure Trusted Signing
-					' 2. Have Docker up and running
-					' 3. Read the comments in this Post Build Script
-					' 4. Modify it according to your needs
+					' 1.  Set up Codesigning with one of the following
+					' 1.1 Azure Trusted Signing
+					'     Requires acs.json and azure.json in ~/.ats-codesign
+					' 1.2 CodeSign Certificate .pfx
+					'     Requires pfx.json and certificate.pfx in ~/.pfx-codesign
+					' 2.  Have Docker up and running
+					' 3.  Read the comments in this Post Build Script
+					' 4.  Modify it according to your needs
 					'
-					'    Especially look out for sDOCKER_EXE
-					'    You might need to set the full path to the executable
+					'     Especially look out for sDOCKER_EXE
+					'     You might need to set the full path to the executable
 					'**************************************************
-					' 5. If it's working for you:
-					'    Do you like it? Does it help you? Has it saved you time and money?
-					'    You're welcome - it's free...
-					'    If you want to say thanks I appreciate a message or a small donation.
-					'    Contact: xojo@jo-tools.ch
-					'    PayPal:  https://paypal.me/jotools
+					' 5.  If it's working for you:
+					'     Do you like it? Does it help you? Has it saved you time and money?
+					'     You're welcome - it's free...
+					'     If you want to say thanks I appreciate a message or a small donation.
+					'     Contact: xojo@jo-tools.ch
+					'     PayPal:  https://paypal.me/jotools
 					'**************************************************
 					
 					'**************************************************
@@ -63,17 +67,17 @@
 					Case 19 'Windows (Intel, 64Bit)
 					Case 25 'Windows(ARM, 64Bit)
 					Else
-					If (Not bSILENT) Then Print "AzureTrustedSigning: Unsupported Build Target"
+					If (Not bSILENT) Then Print "Codesign: Unsupported Build Target"
 					Return
 					End Select
 					
 					'Don't CodeSign Development and Alpha Builds
 					Select Case PropertyValue("App.StageCode")
 					Case "0" 'Development
-					If (Not bSILENT) Then Print "AzureTrustedSigning: Not enabled for Development Builds"
+					If (Not bSILENT) Then Print "Codesign: Not enabled for Development Builds"
 					Return
 					Case "1" 'Alpha
-					If (Not bSILENT) Then Print "AzureTrustedSigning: Not enabled for Alpha Builds"
+					If (Not bSILENT) Then Print "Codesign: Not enabled for Alpha Builds"
 					Return
 					Case "2" 'Beta
 					Case "3" 'Final
@@ -90,16 +94,18 @@
 					Else
 					' only sign all .exe's for Beta/Alpha/Development builds
 					sSIGN_FILES.Add("""./**/*.exe""") 'recursively all .exe's
-					end select
+					End Select
 					
-					'Note: In your project use jotools/ats-codesign if you are not using the InnoSetup Build Step.
+					'Note: In your project use jotools/codesign if you are not using the InnoSetup Build Step.
 					'      It's a smaller Docker Image...
-					'      Should your project use the Post Build Script 'InnoSetup' too, then change here to use jotools/ats-innosetup.
-					'      InnoSetup includes ats-codesign, too. So you don't need having two different Docker Images taking up space on your machine.
-					Var sDOCKER_IMAGE As String = "jotools/ats-codesign" 'or: "jotools/ats-innosetup"
+					'      Should your project use the Post Build Script 'InnoSetup' too, then change here to use jotools/innosetup.
+					'      InnoSetup includes codesign, too. So you don't need having two different Docker Images taking up space on your machine.
+					Var sDOCKER_IMAGE As String = "jotools/codesign" 'or: "jotools/innosetup"
 					
 					Var sFILE_ACS_JSON As String = "" 'will be searched in ~/.ats-codesign
 					Var sFILE_AZURE_JSON As String = "" 'will be searched in ~/.ats-codesign
+					Var sFILE_PFX_JSON As String = "" 'will be searched in ~/.pfx-codesign
+					Var sFILE_PFX_CERTIFICATE As String = "" 'will be searched in ~/.pfx-codesign
 					Var sBUILD_LOCATION As String = CurrentBuildLocation
 					
 					'Check Environment
@@ -107,19 +113,27 @@
 					If TargetWindows Then 'Xojo IDE is running on Windows
 					sFILE_ACS_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\acs.json echo %USERPROFILE%\.ats-codesign\acs.json").Trim
 					sFILE_AZURE_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\azure.json echo %USERPROFILE%\.ats-codesign\azure.json").Trim
+					sFILE_PFX_JSON = DoShellCommand("if exist %USERPROFILE%\.pfx-codesign\pfx.json echo %USERPROFILE%\.pfx-codesign\pfx.json").Trim
+					sFILE_PFX_CERTIFICATE = DoShellCommand("if exist %USERPROFILE%\.pfx-codesign\certificate.pfx echo %USERPROFILE%\.pfx-codesign\certificate.pfx").Trim
 					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
 					sDOCKER_EXE = DoShellCommand("[ -f /usr/local/bin/docker ] && echo /usr/local/bin/docker").Trim
 					If (sDOCKER_EXE = "") Then sDOCKER_EXE = DoShellCommand("[ -f /snap/bin/docker ] && echo /snap/bin/docker").Trim
 					sFILE_ACS_JSON = DoShellCommand("[ -f ~/.ats-codesign/acs.json ] && echo ~/.ats-codesign/acs.json").Trim
 					sFILE_AZURE_JSON = DoShellCommand("[ -f ~/.ats-codesign/azure.json ] && echo ~/.ats-codesign/azure.json").Trim
 					sBUILD_LOCATION = sBUILD_LOCATION.ReplaceAll("\", "") 'don't escape Path
+					sFILE_PFX_JSON = DoShellCommand("[ -f ~/.pfx-codesign/pfx.json ] && echo ~/.pfx-codesign/pfx.json").Trim
+					sFILE_PFX_CERTIFICATE = DoShellCommand("[ -f ~/.pfx-codesign/certificate.pfx ] && echo ~/.pfx-codesign/certificate.pfx").Trim
 					Else
-					If (Not bSILENT) Then Print "AzureTrustedSigning: Xojo IDE running on unknown Target"
+					If (Not bSILENT) Then Print "Codesign: Xojo IDE running on unknown Target"
 					Return
 					End If
 					
-					If (sFILE_ACS_JSON = "") Or (sFILE_AZURE_JSON = "") Then
-					If (Not bSILENT) Then Print "AzureTrustedSigning: acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]"
+					If ((sFILE_ACS_JSON = "") Or (sFILE_AZURE_JSON = "")) And ((sFILE_PFX_JSON = "") Or (sFILE_PFX_CERTIFICATE = "")) Then
+					If (Not bSILENT) Then
+					Print "Codesign:" + EndOfLine + _
+					"acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]" + EndOfLine + _
+					"pfx.json and certificate.pfx not found in [UserHome]-[.pfx-codesign]-[pfx.json|certificate.pfx]"
+					End If
 					Return
 					End If
 					
@@ -127,34 +141,53 @@
 					Var iCHECK_DOCKER_RESULT As Integer
 					Var sCHECK_DOCKER_EXE As String = DoShellCommand(sDOCKER_EXE + " --version", 0, iCHECK_DOCKER_RESULT).Trim
 					If (iCHECK_DOCKER_RESULT <> 0) Or (Not sCHECK_DOCKER_EXE.Contains("Docker")) Or (Not sCHECK_DOCKER_EXE.Contains("version")) Or (Not sCHECK_DOCKER_EXE.Contains("build "))Then
-					Print "AzureTrustedSigning: Docker not available"
+					Print "Codesign: Docker not available"
 					Return
 					End If
 					
 					Var sCHECK_DOCKER_PROCESS As String = DoShellCommand(sDOCKER_EXE + " ps", 0, iCHECK_DOCKER_RESULT).Trim
 					If (iCHECK_DOCKER_RESULT <> 0) Then
-					Print "AzureTrustedSigning: Docker not running"
+					Print "Codesign: Docker not running"
 					Return
 					End If
 					
 					'CodeSign in Docker Container
-					Var sSIGN_COMMAND As String = _
+					Var sSIGN_COMMAND As String
+					Var sSIGN_ENTRYPOINT As String
+					If (sFILE_ACS_JSON <> "") And (sFILE_AZURE_JSON <> "") Then
+					'CodeSign using Azure Trusted Signing
+					sSIGN_ENTRYPOINT = "ats-codesign.sh"
+					sSIGN_COMMAND = _
 					sDOCKER_EXE + " run " + _
 					"--rm " + _
 					"-v """ + sFILE_ACS_JSON + """:/etc/ats-codesign/acs.json " + _
 					"-v """ + sFILE_AZURE_JSON + """:/etc/ats-codesign/azure.json " + _
 					"-v """ + sBUILD_LOCATION + """:/data " + _
 					"-w /data " + _
-					"--entrypoint ats-codesign.sh " + _
+					"--entrypoint " + sSIGN_ENTRYPOINT + " " + _
 					sDOCKER_IMAGE + " " + _
 					String.FromArray(sSIGN_FILES, " ")
+					ElseIf (sFILE_PFX_JSON <> "") And (sFILE_PFX_CERTIFICATE <> "") Then
+					'CodeSign using .pfx
+					sSIGN_ENTRYPOINT = "pfx-codesign.sh"
+					sSIGN_COMMAND = _
+					sDOCKER_EXE + " run " + _
+					"--rm " + _
+					"-v """ + sFILE_PFX_JSON + """:/etc/pfx-codesign/pfx.json " + _
+					"-v """ + sFILE_PFX_CERTIFICATE + """:/etc/pfx-codesign/certificate.pfx " + _
+					"-v """ + sBUILD_LOCATION + """:/data " + _
+					"-w /data " + _
+					"--entrypoint " + sSIGN_ENTRYPOINT + " " + _
+					sDOCKER_IMAGE + " " + _
+					String.FromArray(sSIGN_FILES, " ")
+					End If
 					
 					Var iSIGN_RESULT As Integer
 					Var sSIGN_OUTPUT As String = DoShellCommand(sSIGN_COMMAND, 0, iSIGN_RESULT)
 					
 					If (iSIGN_RESULT <> 0) Then
 					Clipboard = sSIGN_OUTPUT
-					Print "AzureTrustedSigning: ats-codesign.sh Error" + EndOfLine + _
+					Print "Codesign: " + sSIGN_ENTRYPOINT + " Error" + EndOfLine + _
 					"[ExitCode: " + iSIGN_RESULT.ToString + "]" + EndOfLine + EndOfLine + _
 					"Note: Shell Output is available in Clipboard."
 					
@@ -162,7 +195,7 @@
 					Var iCHECK_DOCKERIMAGE_RESULT As Integer
 					Var sCHECK_DOCKERIMAGE_OUTPUT As String = DoShellCommand(sDOCKER_EXE + " image inspect " + sDOCKER_IMAGE, 0, iCHECK_DOCKERIMAGE_RESULT)
 					If (iCHECK_DOCKERIMAGE_RESULT <> 0) Then
-					Print "AzureTrustedSigning: Docker Image '" + sDOCKER_IMAGE + "' not available"
+					Print "Codesign: Docker Image '" + sDOCKER_IMAGE + "' not available"
 					End If
 					End If
 					End If
@@ -284,34 +317,38 @@
 				End
 				Begin IDEScriptBuildStep InnoSetup , AppliesTo = 2, Architecture = 0, Target = 0
 					'**************************************************
-					' InnoSetup | Azure Trusted Signing | Docker
+					' InnoSetup | Azure Trusted Signing | PFX | Docker
 					'**************************************************
 					' https://github.com/jo-tools/ats-codesign
 					'**************************************************
 					' Requirements
 					'**************************************************
-					' 1. Optional: Set up Azure Trusted Signing
-					'    (only if you want a codesigned Installer)
-					' 2. Have Docker up and running
-					' 3. Put your own InnoSetup Script to the project
-					'    location (or use the universal script provided
-					'    with the example project)
-					' 4. Read the comments in this Post Build Script
-					' 5. Modify it according to your needs
+					' 1.  Optional: Set up Codesigning with one of the following
+					'     (only if you want a codesigned Installer)
+					' 1.1 Azure Trusted Signing
+					'     Requires acs.json and azure.json in ~/.ats-codesign
+					' 1.2 CodeSign Certificate .pfx
+					'     Requires pfx.json and certificate.pfx in ~/.pfx-codesign
+					' 2.  Have Docker up and running
+					' 3.  Put your own InnoSetup Script to the project
+					'     location (or use the universal script provided
+					'     with the example project)
+					' 4.  Read the comments in this Post Build Script
+					' 5.  Modify it according to your needs
 					'
-					'    Especially look out for sDOCKER_EXE
-					'    You might need to set the full path to the executable
+					'     Especially look out for sDOCKER_EXE
+					'     You might need to set the full path to the executable
 					'
-					'    And at least change the sAPP_PUBLISHER_URL to
-					'    your own Website if you're using the provided
-					'    universal InnoSetup script
+					'     And at least change the sAPP_PUBLISHER_URL to
+					'     your own Website if you're using the provided
+					'     universal InnoSetup script
 					'**************************************************
-					' 6. If it's working for you:
-					'    Do you like it? Does it help you? Has it saved you time and money?
-					'    You're welcome - it's free...
-					'    If you want to say thanks I appreciate a message or a small donation.
-					'    Contact: xojo@jo-tools.ch
-					'    PayPal:  https://paypal.me/jotools
+					' 6.  If it's working for you:
+					'     Do you like it? Does it help you? Has it saved you time and money?
+					'     You're welcome - it's free...
+					'     If you want to say thanks I appreciate a message or a small donation.
+					'     Contact: xojo@jo-tools.ch
+					'     PayPal:  https://paypal.me/jotools
 					'**************************************************
 					
 					'**************************************************
@@ -429,21 +466,25 @@
 					Var sISS_csOutputBaseFilename As String = sSETUP_BASEFILENAME
 					
 					'Variables for Docker
-					Var sDOCKER_IMAGE As String = "jotools/ats-innosetup"
+					Var sDOCKER_IMAGE As String = "jotools/innosetup"
 					Var sFILE_ACS_JSON As String = "" 'will be searched in ~/.ats-codesign
 					Var sFILE_AZURE_JSON As String = "" 'will be searched in ~/.ats-codesign
+					Var sFILE_PFX_JSON As String = "" 'will be searched in ~/.pfx-codesign
+					Var sFILE_PFX_CERTIFICATE As String = "" 'will be searched in ~/.pfx-codesign
 					Var sPROJECT_PATH As String
 					
 					'Check Environment
 					Var sDOCKER_EXE As String = "docker"
 					Var sCHAR_FOLDER_SEPARATOR As String
-					Var bAZURE_TRUSTED_SIGNING_AVAILABLE As Boolean
+					Var bCODESIGN_AVAILABLE As Boolean
 					
 					If TargetWindows Then 'Xojo IDE is running on Windows
 					sPROJECT_PATH = DoShellCommand("echo %PROJECT_PATH%", 0).Trim
 					sCHAR_FOLDER_SEPARATOR = "\"
 					sFILE_ACS_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\acs.json echo %USERPROFILE%\.ats-codesign\acs.json").Trim
 					sFILE_AZURE_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\azure.json echo %USERPROFILE%\.ats-codesign\azure.json").Trim
+					sFILE_PFX_JSON = DoShellCommand("if exist %USERPROFILE%\.pfx-codesign\pfx.json echo %USERPROFILE%\.pfx-codesign\pfx.json").Trim
+					sFILE_PFX_CERTIFICATE = DoShellCommand("if exist %USERPROFILE%\.pfx-codesign\certificate.pfx echo %USERPROFILE%\.pfx-codesign\certificate.pfx").Trim
 					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
 					sPROJECT_PATH = DoShellCommand("echo $PROJECT_PATH", 0).Trim
 					If sPROJECT_PATH.Right(1) = "/" Then
@@ -459,6 +500,8 @@
 					If (sDOCKER_EXE = "") Then sDOCKER_EXE = DoShellCommand("[ -f /snap/bin/docker ] && echo /snap/bin/docker").Trim
 					sFILE_ACS_JSON = DoShellCommand("[ -f ~/.ats-codesign/acs.json ] && echo ~/.ats-codesign/acs.json").Trim
 					sFILE_AZURE_JSON = DoShellCommand("[ -f ~/.ats-codesign/azure.json ] && echo ~/.ats-codesign/azure.json").Trim
+					sFILE_PFX_JSON = DoShellCommand("[ -f ~/.pfx-codesign/pfx.json ] && echo ~/.pfx-codesign/pfx.json").Trim
+					sFILE_PFX_CERTIFICATE = DoShellCommand("[ -f ~/.pfx-codesign/certificate.pfx ] && echo ~/.pfx-codesign/certificate.pfx").Trim
 					sBUILD_LOCATION = sBUILD_LOCATION.ReplaceAll("\", "") 'don't escape Path
 					Else
 					If (Not bSILENT) Then Print "InnoSetup: Xojo IDE running on unknown Target"
@@ -485,14 +528,16 @@
 					Return
 					End If
 					
-					If (sFILE_ACS_JSON = "") Or (sFILE_AZURE_JSON = "") Then
+					If ((sFILE_ACS_JSON = "") Or (sFILE_AZURE_JSON = "")) And ((sFILE_PFX_JSON = "") Or (sFILE_PFX_CERTIFICATE = "")) Then
 					If (Not bSILENT) Then
-					Print "InnoSetup: acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]" + EndOfLine + _
+					Print "InnoSetup:" + EndOfLine + _
+					"acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]" + EndOfLine + _
+					"pfx.json and certificate.pfx not found in [UserHome]-[.pfx-codesign]-[pfx.json|certificate.pfx]" + _
 					"Proceeding without codesigning the windows installer"
 					End If
-					bAZURE_TRUSTED_SIGNING_AVAILABLE = False
+					bCODESIGN_AVAILABLE = False
 					Else
-					bAZURE_TRUSTED_SIGNING_AVAILABLE = True
+					bCODESIGN_AVAILABLE = True
 					End If
 					
 					'Check Docker
@@ -520,9 +565,14 @@
 					'Run InnoSetup (and CodeSign) in Docker Container
 					Var sINNOSETUP_PARAMETERS() As String
 					
-					If bAZURE_TRUSTED_SIGNING_AVAILABLE Then
+					If bCODESIGN_AVAILABLE Then
+					If (sFILE_ACS_JSON <> "") And (sFILE_AZURE_JSON <> "") Then
 					sINNOSETUP_PARAMETERS.Add("""/SATS=Z:/usr/local/bin/ats-codesign.bat $f""")
 					sINNOSETUP_PARAMETERS.Add("/DDoCodeSignATS")
+					ElseIf (sFILE_PFX_JSON <> "") And (sFILE_PFX_CERTIFICATE <> "") Then
+					sINNOSETUP_PARAMETERS.Add("""/SATS=Z:/usr/local/bin/pfx-codesign.bat $f""")
+					sINNOSETUP_PARAMETERS.Add("/DDoCodeSignATS")
+					End If
 					End If
 					
 					'Parameters for our universal InnoSetup Script
@@ -558,6 +608,8 @@
 					"--rm " + _
 					If(sFILE_ACS_JSON <> "", "-v """ + sFILE_ACS_JSON + """:/etc/ats-codesign/acs.json ", "") + _
 					If(sFILE_AZURE_JSON <> "", "-v """ + sFILE_AZURE_JSON + """:/etc/ats-codesign/azure.json ", "") + _
+					If(sFILE_PFX_JSON <> "", "-v """ + sFILE_PFX_JSON + """:/etc/pfx-codesign/pfx.json ", "") + _
+					If(sFILE_PFX_CERTIFICATE <> "", "-v """ + sFILE_PFX_CERTIFICATE + """:/etc/pfx-codesign/certificate.pfx ", "") + _
 					"-v """ + sFOLDER_BASE + """:/data " + _
 					"-v """ + sINNOSETUP_SCRIPT + """:/tmp/innosetup-script.iss " + _
 					"-w /data " + _
