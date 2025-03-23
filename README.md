@@ -47,7 +47,7 @@ Please refer to the [Documentation](./dockerimage/innosetup/) for the provided [
 
 ## Xojo Example Project
 
-This repository includes a Xojo Example Project `ATS CodeSign Docker.xojo_project` which uses
+This repository includes a Xojo Example Project `ATS CodeSign InnoSetup.xojo_project` which uses
 - a Post Build Script `CodeSign` to codesign the Windows builds using [Azure Trusted Signing](https://azure.microsoft.com/en-us/products/trusted-signing) *(or a codesign certificate `.pfx`)*
   - using the Docker Container ([jotools/codesign](https://hub.docker.com/r/jotools/codesign)) to perform the codesigning using [jsign](https://github.com/ebourg/jsign)
 - a Post Build Script `CreateZIP` to package the built and codesigned application in a `.zip`
@@ -72,14 +72,14 @@ Codesigned Windows Installer *(Created and codesigned with Xojo IDE running on m
 ### Requirements
 [Xojo](https://www.xojo.com/) is a rapid application development for Desktop, Web, Mobile & Raspberry Pi.  
 
-The Desktop application Xojo example project `ATS CodeSign Docker.xojo_project` and its Post Build Scripts are using:
+The Desktop application Xojo example project `ATS CodeSign InnoSetup.xojo_project` and its Post Build Scripts are using:
 - Xojo 2024r4.2
 - API 2
 
 ### How to use in your own Xojo project?
 
 #### CodeSign (Azure Trusted Signing | PFX)
-1. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `CodeSign` provided in `ATS CodeSign Docker.xojo_project`
+1. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `CodeSign` provided in `ATS CodeSign InnoSetup.xojo_project`
 2. Make sure this Post Build Script runs after the Step 'Windows: Build'
 3. Read the comments in the provided Post Build Script, modify it according to your needs  
    The default settings are:
@@ -93,7 +93,7 @@ The Desktop application Xojo example project `ATS CodeSign Docker.xojo_project` 
 
 #### CreateZIP
 
-1. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `CreateZIP` provided in `ATS CodeSign Docker.xojo_project`
+1. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `CreateZIP` provided in `ATS CodeSign InnoSetup.xojo_project`
 2. Make sure this Post Build Script runs after the Step 'Windows: Build' *(and after `AzureTrustedSigning` to ensure you zip the codesigned application)*
 3. Read the comments in the provided Post Build Script, modify it according to your needs
 
@@ -104,7 +104,7 @@ The Desktop application Xojo example project `ATS CodeSign Docker.xojo_project` 
      - *it's prepared for all Windows Build Targets (WIN32, WIN64, ARM64)*
      - *it uses parameters so that it can be configured from within the Post Build Script*
    - *or use your own InnoSetup script*
-2. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `InnoSetup` provided in `ATS CodeSign Docker.xojo_project`
+2. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `InnoSetup` provided in `ATS CodeSign InnoSetup.xojo_project`
 3. Make sure this Post Build Script runs after the Step 'Windows: Build' *(and after `CodeSign` to ensure you include the codesigned application in the windows installer)*
 4. Read the comments in the provided Post Build Script, modify it according to your needs *(e.g. change the value of `sAPP_PUBLISHER_URL` to your own website)*  
    The example Post Build Script is designed to be quite generic and using the provided universal innosetup script will:
