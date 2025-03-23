@@ -10,14 +10,14 @@ Begin DesktopWindow Window1
    HasFullScreenButton=   False
    HasMaximizeButton=   False
    HasMinimizeButton=   True
-   Height          =   480
+   Height          =   500
    ImplicitInstance=   True
    MacProcID       =   0
    MaximumHeight   =   32000
    MaximumWidth    =   32000
    MenuBar         =   37810175
    MenuBarVisible  =   False
-   MinimumHeight   =   525
+   MinimumHeight   =   500
    MinimumWidth    =   600
    Resizeable      =   False
    Title           =   "ATS CodeSign | InnoSetup | Docker"
@@ -256,7 +256,7 @@ Begin DesktopWindow Window1
       TextAlignment   =   1
       TextColor       =   &c0072CE00
       Tooltip         =   "https://github.com/ebourg/jsign"
-      Top             =   340
+      Top             =   360
       Transparent     =   False
       Underline       =   True
       Visible         =   True
@@ -288,7 +288,7 @@ Begin DesktopWindow Window1
       TextAlignment   =   1
       TextColor       =   &c0072CE00
       Tooltip         =   "https://azure.microsoft.com/en-us/products/trusted-signing"
-      Top             =   310
+      Top             =   330
       Transparent     =   False
       Underline       =   True
       Visible         =   True
@@ -316,11 +316,11 @@ Begin DesktopWindow Window1
       TabIndex        =   17
       TabPanelIndex   =   0
       TabStop         =   True
-      Text            =   "Docker Hub: jotools/ats-codesign"
+      Text            =   "Docker Hub: jotools/codesign"
       TextAlignment   =   1
       TextColor       =   &c0072CE00
-      Tooltip         =   "https://hub.docker.com/r/jotools/ats-codesign"
-      Top             =   400
+      Tooltip         =   "https://hub.docker.com/r/jotools/codesign"
+      Top             =   420
       Transparent     =   False
       Underline       =   True
       Visible         =   True
@@ -352,7 +352,7 @@ Begin DesktopWindow Window1
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
-      Top             =   280
+      Top             =   300
       Transparent     =   False
       Underline       =   False
       Visible         =   True
@@ -384,7 +384,7 @@ Begin DesktopWindow Window1
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
-      Top             =   280
+      Top             =   300
       Transparent     =   False
       Underline       =   False
       Visible         =   True
@@ -416,7 +416,7 @@ Begin DesktopWindow Window1
       TextAlignment   =   1
       TextColor       =   &c0072CE00
       Tooltip         =   "https://learn.microsoft.com/en-us/azure/trusted-signing/quickstart"
-      Top             =   310
+      Top             =   330
       Transparent     =   False
       Underline       =   True
       Visible         =   True
@@ -448,7 +448,7 @@ Begin DesktopWindow Window1
       TextAlignment   =   1
       TextColor       =   &c0072CE00
       Tooltip         =   "https://melatonin.dev/blog/code-signing-on-windows-with-azure-trusted-signing/"
-      Top             =   340
+      Top             =   360
       Transparent     =   False
       Underline       =   True
       Visible         =   True
@@ -480,7 +480,7 @@ Begin DesktopWindow Window1
       TextAlignment   =   1
       TextColor       =   &c0072CE00
       Tooltip         =   "https://github.com/koaladsp/KoalaDocs/blob/master/azure-code-signing-for-plugin-developers.md#232-preparing-signtoolexe"
-      Top             =   370
+      Top             =   390
       Transparent     =   False
       Underline       =   True
       Visible         =   True
@@ -505,7 +505,7 @@ Begin DesktopWindow Window1
       TabIndex        =   8
       TabPanelIndex   =   0
       Tooltip         =   ""
-      Top             =   265
+      Top             =   285
       Transparent     =   False
       Visible         =   True
       Width           =   600
@@ -521,7 +521,7 @@ Begin DesktopWindow Window1
       FontName        =   "System"
       FontSize        =   0.0
       FontUnit        =   0
-      Height          =   145
+      Height          =   165
       Index           =   -2147483648
       Italic          =   False
       Left            =   20
@@ -536,7 +536,7 @@ Begin DesktopWindow Window1
       TabIndex        =   7
       TabPanelIndex   =   0
       TabStop         =   True
-      Text            =   "This Xojo Example Project includes the Post Build Scripts ""AzureTrustedSigning"", ""CreateZIP"" and ""InnoSetup"" which codesigns the Windows builds using ""Azure Trusted Signing"", creates a .zip and finally creates a Windows Installer using ""InnoSetup"".\n\nIt uses Docker Containers to perform the CodeSigning using jsign and running InnoSetup.\n\nThis allows the Windows application to be built, codesigned, zipped and creating a Windows Installer with the Xojo IDE running on all Windows, macOS or Linux."
+      Text            =   "This Xojo Example Project includes the Post Build Scripts ""CodeSign"", ""CreateZIP"" and ""InnoSetup"" which codesigns the Windows builds using Azure Trusted Signing (or a codesign certificate .pfx), creates a .zip and finally creates a codesigned Windows Installer using ""InnoSetup"".\n\nIt uses Docker Containers to perform the codesigning using jsign and running InnoSetup.\n\nThis allows the Windows application to be built, codesigned, zipped and creating a Windows Installer with the Xojo IDE running on all Windows, macOS or Linux."
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
@@ -568,11 +568,11 @@ Begin DesktopWindow Window1
       TabIndex        =   18
       TabPanelIndex   =   0
       TabStop         =   True
-      Text            =   "Docker Hub: jotools/ats-innosetup"
+      Text            =   "Docker Hub: jotools/innosetup"
       TextAlignment   =   1
       TextColor       =   &c0072CE00
-      Tooltip         =   "https://hub.docker.com/r/jotools/ats-innosetup"
-      Top             =   430
+      Tooltip         =   "https://hub.docker.com/r/jotools/innosetup"
+      Top             =   450
       Transparent     =   False
       Underline       =   True
       Visible         =   True
@@ -604,7 +604,7 @@ Begin DesktopWindow Window1
       TextAlignment   =   1
       TextColor       =   &c0072CE00
       Tooltip         =   "https://jrsoftware.org/isinfo.php"
-      Top             =   370
+      Top             =   390
       Transparent     =   False
       Underline       =   True
       Visible         =   True
