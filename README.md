@@ -66,7 +66,7 @@ Codesigned Windows Installer *(Created and codesigned with Xojo IDE running on m
 ### Requirements
 [Xojo](https://www.xojo.com/) is a rapid application development for Desktop, Web, Mobile & Raspberry Pi.  
 
-The Desktop application Xojo example project `ATS CodeSign Docker.xojo_project` and its Post Build Script is using:
+The Desktop application Xojo example project `ATS CodeSign Docker.xojo_project` and its Post Build Scripts are using:
 - Xojo 2024r4.2
 - API 2
 
