@@ -532,7 +532,8 @@
 					If (Not bSILENT) Then
 					Print "InnoSetup:" + EndOfLine + _
 					"acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]" + EndOfLine + _
-					"pfx.json and certificate.pfx not found in [UserHome]-[.pfx-codesign]-[pfx.json|certificate.pfx]" + _
+					"pfx.json and certificate.pfx not found in [UserHome]-[.pfx-codesign]-[pfx.json|certificate.pfx]" + EndOfLine + _
+					EndOfLine + _
 					"Proceeding without codesigning the windows installer"
 					End If
 					bCODESIGN_AVAILABLE = False
