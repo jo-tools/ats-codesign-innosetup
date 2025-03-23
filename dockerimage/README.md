@@ -2,7 +2,7 @@
 
 ## CodeSign `jotools/codesign`
 
-**Windows Code Signing using Azure Trusted Signing or .pfx**  
+**Windows Code Signing using Azure Trusted Signing or codesigning certificate.pfx**  
 Please refer to the [Documentation](./codesign/) for the provided [Docker Image `jotools/codesign`](./codesign/).  
 It includes information about how to set it all up, along with a codesigning example.
 

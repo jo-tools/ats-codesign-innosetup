@@ -5,8 +5,6 @@ The Docker Image is based on Debian and has the following components installed:
   - curl, jq, default-jdk
 - [jsign](https://github.com/ebourg/jsign)  
   Authenticode signing tool in Java
-- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/)  
-  Azure Command-Line Interface
 - `ats-codesign.sh` and `pfx-codesign.sh`  
   Custom Shell Script used for Windows Code Signing using Azure Trusted Signing or a codesign certificate `.pfx`   
   - Usage:  

@@ -27,7 +27,7 @@ RUN curl -sL https://github.com/ebourg/jsign/releases/download/${JSIGN_VERSION}/
 	&& rm ./jsign.deb
 
 # INSTALL Azure CLI
-RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+# RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 # COPY JOTOOLS SCRIPTS
 COPY ./scripts /usr/local/bin
