@@ -19,7 +19,7 @@ Codesigning is using [jsign](https://github.com/ebourg/jsign) in a Docker Contai
 
 ### InnoSetup
 This example shows how build a *(codesigned)* windows installer using [InnoSetup](https://jrsoftware.org/isinfo.php).  
-Creating the windows installer is being done in a Docker Container [`jotools/ats-codesign`](https://hub.docker.com/r/jotools/ats-codesign). This allows creating the windows installer on a host machine running on either Windows, macOS or Linux.
+Creating the windows installer is being done in a Docker Container [`jotools/ats-innosetup`](https://hub.docker.com/r/jotools/ats-innosetup). This allows creating the windows installer on a host machine running on either Windows, macOS or Linux.
 
 
 ## Docker Images
