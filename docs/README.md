@@ -20,12 +20,14 @@ Some useful links and archived Web content.
 
 
 ### Components
-- [Docker Hub: jotools/ats-codesign](https://hub.docker.com/r/jotools/ats-codesign)  
-  Azure Trusted Signing | Docker | jsign
+- [Docker Hub: jotools/codesign](https://hub.docker.com/r/jotools/codesign)  
+  Azure Trusted Signing | PFX | Docker | jsign
+- [Docker Hub: jotools/innosetup](https://hub.docker.com/r/jotools/innosetup)  
+  InnoSetup | Docker | jsign
 - [jsign](https://github.com/ebourg/jsign)  
   Authenticode signing tool in Java
-- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/)  
-  Azure Command-Line Interface
+- [InnoSetup](https://jrsoftware.org/isinfo.php)  
+  Inno Setup is a free installer for Windows programs
 
 
 ## Archived Web Content
@@ -37,6 +39,16 @@ These articles have been very helpful and are worth being preserved as `.pdf`.
 
 ## Templates
 
-Template Configuration files for [Docker Hub: jotools/ats-codesign](https://hub.docker.com/r/jotools/ats-codesign):
+Template configuration files for Docker Hub: [`jotools/codesign`](https://hub.docker.com/r/jotools/codesign) and [`jotools/innosetup`](https://hub.docker.com/r/jotools/innosetup):
+
+### Azure Trusted Signing
+
+Place the following two files in `~/.ats-codesign`
 - [`acs.json`](./acs.json)
 - [`azure.json`](./azure.json)
+
+### Codesign certificate `.pfx`
+
+Place the following two files in `~/.pfx-codesign`
+- [`pfx.json`](./pfx.json)
+- `certificate.pfx`
