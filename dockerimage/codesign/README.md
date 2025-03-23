@@ -2,7 +2,7 @@
 
 The Docker Image is based on Debian and has the following components installed:
 - A couple of required Libraries
-  - curl, jq, openjdk
+  - curl, jq, default-jdk
 - [jsign](https://github.com/ebourg/jsign)  
   Authenticode signing tool in Java
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/)  
@@ -89,24 +89,30 @@ Create the following two `.json` files on your host machine:
 }
 ```
 
-And mount them into the following location when running the Docker Container:
-- `/etc/ats-codesign/azure.json`
-- `/etc/ats-codesign/acs.json`
+And mount them into the following location when running the Docker Container:  
+```
+/etc/ats-codesign/azure.json
+/etc/ats-codesign/acs.json
+```
 
-Instead of mounting the two `.json` files, you can also provide the configuration via Environment Variables:
-- `AZURE_TENANT_ID=[Azure Tenant Id]`
-- `AZURE_CLIENT_ID=[Azure Client Id]`
-- `AZURE_CLIENT_SECRET=[Azure Client Secret]`
-- `ACS_ENDPOINT=https://weu.codesigning.azure.net`
-- `ACS_ACCOUNT_NAME=[ACS Code Signing Account Name]`
-- `ACS_CERTIFICATE_PROFILE_NAME=[ACS Certificate Profile Name]`
+Instead of mounting the two `.json` files, you can also provide the configuration via Environment Variables:  
+```
+AZURE_TENANT_ID=[Azure Tenant Id]
+AZURE_CLIENT_ID=[Azure Client Id]
+AZURE_CLIENT_SECRET=[Azure Client Secret]
+ACS_ENDPOINT=https://weu.codesigning.azure.net
+ACS_ACCOUNT_NAME=[ACS Code Signing Account Name]
+ACS_CERTIFICATE_PROFILE_NAME=[ACS Certificate Profile Name]
+```
 
 #### Timestamp Server
 
 The Timestamp Server will be automatically chosen by jsign.  
-To change it you can set the Environment Variables:
-- `TIMESTAMP_SERVER=http://timestamp.domain.org`
-- `TIMESTAMP_MODE=[RFC3161|Authenticode]`
+To change it you can set the Environment Variables:  
+```
+TIMESTAMP_SERVER=http://timestamp.domain.org
+TIMESTAMP_MODE=[RFC3161|Authenticode]
+```
 
 </details>
 
@@ -131,14 +137,18 @@ Create the following `.json` file on your host machine:
 
 Have your codesign certificate `certificate.pfx` located on your host machine.
 
-Mount them into the following location when running the Docker Container:
-- `/etc/pfx-codesign/pfx.json`
-- `/etc/pfx-codesign/certificate.pfx` (Note: always required)
+Mount them into the following location when running the Docker Container:  
+```
+/etc/pfx-codesign/pfx.json
+/etc/pfx-codesign/certificate.pfx (Note: always required)
+```
 
-Instead of mounting the `.json` file, you can also provide the configuration via Environment Variable:
-- `PFX_PASSWORD=[PFX Password]`
-- `TIMESTAMP_SERVER=http://timestamp.domain.org`
-- `TIMESTAMP_MODE=[RFC3161|Authenticode]`
+Instead of mounting the `.json` file, you can also provide the configuration via Environment Variable:  
+```
+PFX_PASSWORD=[PFX Password]
+TIMESTAMP_SERVER=http://timestamp.domain.org
+TIMESTAMP_MODE=[RFC3161|Authenticode]
+```
 
 </details>
 

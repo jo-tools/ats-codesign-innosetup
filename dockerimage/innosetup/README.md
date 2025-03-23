@@ -79,7 +79,7 @@ You can use this Docker Image to do Windows Code Signing using [Azure Trusted Si
 Please refer to the examples of the Docker Image [`jotools/codesign`](https://hub.docker.com/r/jotools/codesign).
 
 > **Note**  
-> Only use this Docker Image to build windows installers using [InnoSetup](https://jrsoftware.org/isinfo.php).
+> Only use this Docker Image to build windows installers using [InnoSetup](https://jrsoftware.org/isinfo.php).  
 > If you intend to only use codesigning *(without creating windows installers)*, head over to the smaller Docker Image [`jotools/codesign`](https://hub.docker.com/r/jotools/codesign).  
 
 
@@ -126,24 +126,30 @@ Create the following two `.json` files on your host machine:
 }
 ```
 
-And mount them into the following location when running the Docker Container:
-- `/etc/ats-codesign/azure.json`
-- `/etc/ats-codesign/acs.json`
+And mount them into the following location when running the Docker Container:  
+```
+/etc/ats-codesign/azure.json
+/etc/ats-codesign/acs.json
+```
 
-Instead of mounting the two `.json` files, you can also provide the configuration via Environment Variables:
-- `AZURE_TENANT_ID=[Azure Tenant Id]`
-- `AZURE_CLIENT_ID=[Azure Client Id]`
-- `AZURE_CLIENT_SECRET=[Azure Client Secret]`
-- `ACS_ENDPOINT=https://weu.codesigning.azure.net`
-- `ACS_ACCOUNT_NAME=[ACS Code Signing Account Name]`
-- `ACS_CERTIFICATE_PROFILE_NAME=[ACS Certificate Profile Name]`
+Instead of mounting the two `.json` files, you can also provide the configuration via Environment Variables:  
+```
+AZURE_TENANT_ID=[Azure Tenant Id]
+AZURE_CLIENT_ID=[Azure Client Id]
+AZURE_CLIENT_SECRET=[Azure Client Secret]
+ACS_ENDPOINT=https://weu.codesigning.azure.net
+ACS_ACCOUNT_NAME=[ACS Code Signing Account Name]
+ACS_CERTIFICATE_PROFILE_NAME=[ACS Certificate Profile Name]
+```
 
 #### Timestamp Server
 
 The Timestamp Server will be automatically chosen by jsign.  
-To change it you can set the Environment Variables:
-- `TIMESTAMP_SERVER=http://timestamp.domain.org`
-- `TIMESTAMP_MODE=[RFC3161|Authenticode]`
+To change it you can set the Environment Variables:  
+```
+TIMESTAMP_SERVER=http://timestamp.domain.org
+TIMESTAMP_MODE=[RFC3161|Authenticode]
+```
 
 </details>
 
@@ -168,14 +174,18 @@ Create the following `.json` file on your host machine:
 
 Have your codesign certificate `certificate.pfx` located on your host machine.
 
-Mount them into the following location when running the Docker Container:
-- `/etc/pfx-codesign/pfx.json`
-- `/etc/pfx-codesign/certificate.pfx` (Note: always required)
+Mount them into the following location when running the Docker Container:  
+```
+/etc/pfx-codesign/pfx.json
+/etc/pfx-codesign/certificate.pfx (Note: always required)
+```
 
-Instead of mounting the `.json` file, you can also provide the configuration via Environment Variable:
-- `PFX_PASSWORD=[PFX Password]`
-- `TIMESTAMP_SERVER=http://timestamp.domain.org`
-- `TIMESTAMP_MODE=[RFC3161|Authenticode]`
+Instead of mounting the `.json` file, you can also provide the configuration via Environment Variable:  
+```
+PFX_PASSWORD=[PFX Password]
+TIMESTAMP_SERVER=http://timestamp.domain.org
+TIMESTAMP_MODE=[RFC3161|Authenticode]
+```
 
 </details>
 
