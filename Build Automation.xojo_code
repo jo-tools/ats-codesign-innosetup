@@ -546,6 +546,13 @@
 					sINNOSETUP_PARAMETERS.Add("/Dsourcepath=""Z:/data/" + sISS_RELATIVE_SOURCEPATH + """") 'Folder of built App
 					sINNOSETUP_PARAMETERS.Add("""Z:/tmp/innosetup-script.iss""") 'we mount the script to this location
 					
+					Var sISCC_SH_ARGUMENT As String
+					If TargetWindows Then 'Xojo IDE is running on Windows
+					sISCC_SH_ARGUMENT = """" + String.FromArray(sINNOSETUP_PARAMETERS, " ").ReplaceAll("$f", "\$f").ReplaceAll("""", "\""") + """"
+					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
+					sISCC_SH_ARGUMENT = "'" + String.FromArray(sINNOSETUP_PARAMETERS, " ").ReplaceAll("$f", "\$f") + "'"
+					End If
+					
 					Var sINNOSETUP_COMMAND As String = _
 					sDOCKER_EXE + " run " + _
 					"--rm " + _
@@ -556,7 +563,7 @@
 					"-w /data " + _
 					"--entrypoint iscc.sh " + _
 					sDOCKER_IMAGE + " " + _
-					"'" + String.FromArray(sINNOSETUP_PARAMETERS, " ").ReplaceAll("$f", "\$f") + "'"
+					sISCC_SH_ARGUMENT
 					
 					Var iINNOSETUP_RESULT As Integer
 					Var sINNOSETUP_OUTPUT As String = DoShellCommand(sINNOSETUP_COMMAND, 0, iINNOSETUP_RESULT)
