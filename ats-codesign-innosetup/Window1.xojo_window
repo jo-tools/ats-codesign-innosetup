@@ -968,7 +968,7 @@ End
 	#tag Event
 		Sub Opening()
 		  #If TargetLinux Then
-		    Me.FontSize = 14
+		    Me.FontSize = 13
 		  #EndIf
 		  
 		End Sub
