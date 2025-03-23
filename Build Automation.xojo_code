@@ -15,13 +15,13 @@
 				Begin BuildProjectStep Build
 				End
 				Begin IDEScriptBuildStep CodeSign , AppliesTo = 2, Architecture = 0, Target = 0
-					'**************************************************
+					'****************************************************
 					' CodeSign | Azure Trusted Signing | PFX | Docker
-					'**************************************************
-					' https://github.com/jo-tools/ats-codesign
-					'**************************************************
+					'****************************************************
+					' https://github.com/jo-tools/ats-codesign-innosetup
+					'****************************************************
 					' Requirements
-					'**************************************************
+					'****************************************************
 					' 1.  Set up Codesigning with one of the following
 					' 1.1 Azure Trusted Signing
 					'     Requires acs.json and azure.json in ~/.ats-codesign
@@ -33,25 +33,25 @@
 					'
 					'     Especially look out for sDOCKER_EXE
 					'     You might need to set the full path to the executable
-					'**************************************************
+					'****************************************************
 					' 5.  If it's working for you:
 					'     Do you like it? Does it help you? Has it saved you time and money?
 					'     You're welcome - it's free...
 					'     If you want to say thanks I appreciate a message or a small donation.
 					'     Contact: xojo@jo-tools.ch
 					'     PayPal:  https://paypal.me/jotools
-					'**************************************************
+					'****************************************************
 					
-					'**************************************************
+					'****************************************************
 					' Note: Xojo IDE running on Linux
-					'**************************************************
+					'****************************************************
 					' Make sure that docker can be run without requiring 'sudo':
 					' More information e.g. in this article:
 					' https://medium.com/devops-technical-notes-and-manuals/how-to-run-docker-commands-without-sudo-28019814198f
 					' 1. sudo groupadd docker
 					' 2. sudo gpasswd -a $USER docker
 					' 3. (reboot)
-					'**************************************************
+					'****************************************************
 					
 					If DebugBuild Then Return 'don't CodeSign DebugRun's
 					
@@ -316,13 +316,13 @@
 					
 				End
 				Begin IDEScriptBuildStep InnoSetup , AppliesTo = 2, Architecture = 0, Target = 0
-					'**************************************************
+					'****************************************************
 					' InnoSetup | Azure Trusted Signing | PFX | Docker
-					'**************************************************
-					' https://github.com/jo-tools/ats-codesign
-					'**************************************************
+					'****************************************************
+					' https://github.com/jo-tools/ats-codesign-innosetup
+					'****************************************************
 					' Requirements
-					'**************************************************
+					'****************************************************
 					' 1.  Optional: Set up Codesigning with one of the following
 					'     (only if you want a codesigned Installer)
 					' 1.1 Azure Trusted Signing
@@ -342,25 +342,25 @@
 					'     And at least change the sAPP_PUBLISHER_URL to
 					'     your own Website if you're using the provided
 					'     universal InnoSetup script
-					'**************************************************
+					'****************************************************
 					' 6.  If it's working for you:
 					'     Do you like it? Does it help you? Has it saved you time and money?
 					'     You're welcome - it's free...
 					'     If you want to say thanks I appreciate a message or a small donation.
 					'     Contact: xojo@jo-tools.ch
 					'     PayPal:  https://paypal.me/jotools
-					'**************************************************
+					'****************************************************
 					
-					'**************************************************
+					'****************************************************
 					' Note: Xojo IDE running on Linux
-					'**************************************************
+					'****************************************************
 					' Make sure that docker can be run without requiring 'sudo':
 					' More information e.g. in this article:
 					' https://medium.com/devops-technical-notes-and-manuals/how-to-run-docker-commands-without-sudo-28019814198f
 					' 1. sudo groupadd docker
 					' 2. sudo gpasswd -a $USER docker
 					' 3. (reboot)
-					'**************************************************
+					'****************************************************
 					
 					If DebugBuild Then Return 'don't create a windows installer for DebugRun's
 					

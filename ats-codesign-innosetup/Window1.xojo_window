@@ -620,7 +620,7 @@ End
 	#tag Constant, Name = kURL_PayPal, Type = String, Dynamic = False, Default = \"https://paypal.me/jotools", Scope = Private
 	#tag EndConstant
 
-	#tag Constant, Name = kURL_Repository, Type = String, Dynamic = False, Default = \"https://github.com/jo-tools/ats-codesign", Scope = Private
+	#tag Constant, Name = kURL_Repository, Type = String, Dynamic = False, Default = \"https://github.com/jo-tools/ats-codesign-innosetup", Scope = Private
 	#tag EndConstant
 
 
