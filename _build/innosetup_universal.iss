@@ -90,7 +90,7 @@ WizardStyle=modern
 ; never allow a WIN32 to be installed on ARM64
   ArchitecturesAllowed=not arm64
 #elif defined(BuildTargetWIN64)
-  ArchitecturesInstallIn64BitMode=x64
+  ArchitecturesInstallIn64BitMode=x64compatible
 ; if you want to prevent installing the WIN64 Intel Build on ARM64 (even if it works)
 ; ArchitecturesAllowed=x64compatible and not arm64
 ; allow installing the WIN64 Intel Build on ARM64
