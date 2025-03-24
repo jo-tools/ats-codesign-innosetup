@@ -14,13 +14,21 @@
 ; one of the following
 ; /DBuildTargetWIN32 | /DBuildTargetWIN64 | /DBuildTargetARM64
 ; ******************************************************
-; Enable CodeSigning using Azure Trusted Signing
+; Enable CodeSigning using Azure Trusted Signing (or .pfx)
+; Note: ATS here doesn't mean to support Azure Trusted Signing only.
+;       The Parameter just enables that this .iss will use the
+;       Signtool command, which we label "ATS" here.
+;       So calling the .iss will need the CodeSign Script "ATS" defined.
+;       And that might sign with either Azure Trusted Signing or .pfx
 ; ------------------------------------------------------
 ; /DDoCodeSignATS
 ;
-; If CodeSigning is enabled: Set CodeSignTool 'ATS'
-; "/SATS=Z:/usr/local/bin/ats-codesign.bat $f"
+; If CodeSigning is enabled: Set CodeSign Tool with label 'ATS'
+; which does the actual codesigning (either with Azure Trusted
+; Signing or a .pfx)
+; "/SATS=Z:/usr/local/bin/[ats|pfx]-codesign.bat $f"
 ; ******************************************************
+
 
 #ifndef csProductName
   #define csProductName "My Application"
@@ -79,11 +87,16 @@ WizardStyle=modern
 ; Note: Remove 'not arm64' if you want to allow WIN32 or WIN64 apps to run on Windows ARM
 ;       This example will only allow installing the ARM64 build on Windows ARM
 #if defined(BuildTargetWIN32)
+; never allow a WIN32 to be installed on ARM64
   ArchitecturesAllowed=not arm64
 #elif defined(BuildTargetWIN64)
   ArchitecturesInstallIn64BitMode=x64
-  ArchitecturesAllowed=x64compatible and not arm64
+; if you want to prevent installing the WIN64 Intel Build on ARM64 (even if it works)
+; ArchitecturesAllowed=x64compatible and not arm64
+; allow installing the WIN64 Intel Build on ARM64
+  ArchitecturesAllowed=x64compatible
 #elif defined(BuildTargetARM64)
+; require ARM64 - the application won't run on Intel
   ArchitecturesInstallIn64BitMode=arm64
   ArchitecturesAllowed=arm64
 #endif

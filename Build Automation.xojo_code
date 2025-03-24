@@ -332,7 +332,8 @@
 					' 2.  Have Docker up and running
 					' 3.  Put your own InnoSetup Script to the project
 					'     location (or use the universal script provided
-					'     with the example project)
+					'     with the example project - modify that according
+					'     to your needs)
 					' 4.  Read the comments in this Post Build Script
 					' 5.  Modify it according to your needs
 					'
