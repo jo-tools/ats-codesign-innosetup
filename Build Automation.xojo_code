@@ -461,7 +461,7 @@
 					
 					'Set Parameters for InnoSetup Script
 					Var sISS_csProductName As String = sAPP_PRODUCTNAME
-					Var sISS_csExeName As String = sAPP_NAME
+					Var sISS_csExeName As String = sAPP_NAME + ".exe" // we removed that before
 					Var sISS_csAppPublisher As String = sAPP_COMPANYNAME
 					Var sISS_csAppPublisherURL As String = sAPP_PUBLISHER_URL
 					Var sISS_csOutputBaseFilename As String = sSETUP_BASEFILENAME
