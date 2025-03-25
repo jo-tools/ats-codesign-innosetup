@@ -10,17 +10,17 @@ Begin DesktopWindow Window1
    HasFullScreenButton=   False
    HasMaximizeButton=   False
    HasMinimizeButton=   True
-   Height          =   420
+   Height          =   500
    ImplicitInstance=   True
    MacProcID       =   0
    MaximumHeight   =   32000
    MaximumWidth    =   32000
    MenuBar         =   37810175
    MenuBarVisible  =   False
-   MinimumHeight   =   420
+   MinimumHeight   =   500
    MinimumWidth    =   600
    Resizeable      =   False
-   Title           =   "ATS CodeSign | Docker"
+   Title           =   "ATS CodeSign | InnoSetup | Docker"
    Type            =   0
    Visible         =   True
    Width           =   600
@@ -71,7 +71,7 @@ Begin DesktopWindow Window1
       TabIndex        =   1
       TabPanelIndex   =   0
       TabStop         =   True
-      Text            =   "ATS CodeSign | Docker"
+      Text            =   "ATS CodeSign | InnoSetup"
       TextAlignment   =   0
       TextColor       =   &c0072D800
       Tooltip         =   "#kURL_Repository"
@@ -79,7 +79,7 @@ Begin DesktopWindow Window1
       Transparent     =   False
       Underline       =   True
       Visible         =   True
-      Width           =   200
+      Width           =   230
    End
    Begin DesktopLabel labAppVersion
       AllowAutoDeactivate=   True
@@ -151,7 +151,7 @@ Begin DesktopWindow Window1
       Height          =   30
       Index           =   -2147483648
       Italic          =   False
-      Left            =   371
+      Left            =   350
       LockBottom      =   False
       LockedInPosition=   True
       LockLeft        =   False
@@ -171,7 +171,7 @@ Begin DesktopWindow Window1
       Transparent     =   False
       Underline       =   False
       Visible         =   True
-      Width           =   209
+      Width           =   230
    End
    Begin DesktopCanvas cnvPayPal
       AllowAutoDeactivate=   True
@@ -256,11 +256,11 @@ Begin DesktopWindow Window1
       TextAlignment   =   1
       TextColor       =   &c0072CE00
       Tooltip         =   "https://github.com/ebourg/jsign"
-      Top             =   340
+      Top             =   360
       Transparent     =   False
       Underline       =   True
       Visible         =   True
-      Width           =   220
+      Width           =   250
    End
    Begin DesktopLabel labLinkATS
       AllowAutoDeactivate=   True
@@ -288,13 +288,13 @@ Begin DesktopWindow Window1
       TextAlignment   =   1
       TextColor       =   &c0072CE00
       Tooltip         =   "https://azure.microsoft.com/en-us/products/trusted-signing"
-      Top             =   310
+      Top             =   330
       Transparent     =   False
       Underline       =   True
       Visible         =   True
-      Width           =   220
+      Width           =   250
    End
-   Begin DesktopLabel labLinkDockerHub
+   Begin DesktopLabel labLinkDockerHubAtsCodesign
       AllowAutoDeactivate=   True
       Bold            =   False
       Enabled         =   True
@@ -313,18 +313,18 @@ Begin DesktopWindow Window1
       Multiline       =   False
       Scope           =   2
       Selectable      =   False
-      TabIndex        =   15
+      TabIndex        =   17
       TabPanelIndex   =   0
       TabStop         =   True
-      Text            =   "Docker Hub: jotools/ats-codesign"
+      Text            =   "Docker Hub: jotools/codesign"
       TextAlignment   =   1
       TextColor       =   &c0072CE00
-      Tooltip         =   "https://hub.docker.com/r/jotools/ats-codesign"
-      Top             =   370
+      Tooltip         =   "https://hub.docker.com/r/jotools/codesign"
+      Top             =   420
       Transparent     =   False
       Underline       =   True
       Visible         =   True
-      Width           =   220
+      Width           =   250
    End
    Begin DesktopLabel labResources
       AllowAutoDeactivate=   True
@@ -352,7 +352,7 @@ Begin DesktopWindow Window1
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
-      Top             =   280
+      Top             =   300
       Transparent     =   False
       Underline       =   False
       Visible         =   True
@@ -368,7 +368,7 @@ Begin DesktopWindow Window1
       Height          =   20
       Index           =   -2147483648
       Italic          =   False
-      Left            =   300
+      Left            =   280
       LockBottom      =   True
       LockedInPosition=   True
       LockLeft        =   False
@@ -384,11 +384,11 @@ Begin DesktopWindow Window1
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
-      Top             =   280
+      Top             =   300
       Transparent     =   False
       Underline       =   False
       Visible         =   True
-      Width           =   280
+      Width           =   300
    End
    Begin DesktopLabel labLinkQuickstart
       AllowAutoDeactivate=   True
@@ -400,7 +400,7 @@ Begin DesktopWindow Window1
       Height          =   30
       Index           =   -2147483648
       Italic          =   False
-      Left            =   300
+      Left            =   280
       LockBottom      =   True
       LockedInPosition=   True
       LockLeft        =   False
@@ -416,11 +416,11 @@ Begin DesktopWindow Window1
       TextAlignment   =   1
       TextColor       =   &c0072CE00
       Tooltip         =   "https://learn.microsoft.com/en-us/azure/trusted-signing/quickstart"
-      Top             =   310
+      Top             =   330
       Transparent     =   False
       Underline       =   True
       Visible         =   True
-      Width           =   280
+      Width           =   300
    End
    Begin DesktopLabel labLinkMelatonin
       AllowAutoDeactivate=   True
@@ -432,7 +432,7 @@ Begin DesktopWindow Window1
       Height          =   30
       Index           =   -2147483648
       Italic          =   False
-      Left            =   300
+      Left            =   280
       LockBottom      =   True
       LockedInPosition=   True
       LockLeft        =   False
@@ -448,11 +448,11 @@ Begin DesktopWindow Window1
       TextAlignment   =   1
       TextColor       =   &c0072CE00
       Tooltip         =   "https://melatonin.dev/blog/code-signing-on-windows-with-azure-trusted-signing/"
-      Top             =   340
+      Top             =   360
       Transparent     =   False
       Underline       =   True
       Visible         =   True
-      Width           =   280
+      Width           =   300
    End
    Begin DesktopLabel labLinkKoalaDocs
       AllowAutoDeactivate=   True
@@ -464,7 +464,7 @@ Begin DesktopWindow Window1
       Height          =   30
       Index           =   -2147483648
       Italic          =   False
-      Left            =   300
+      Left            =   280
       LockBottom      =   True
       LockedInPosition=   True
       LockLeft        =   False
@@ -480,11 +480,11 @@ Begin DesktopWindow Window1
       TextAlignment   =   1
       TextColor       =   &c0072CE00
       Tooltip         =   "https://github.com/koaladsp/KoalaDocs/blob/master/azure-code-signing-for-plugin-developers.md#232-preparing-signtoolexe"
-      Top             =   370
+      Top             =   390
       Transparent     =   False
       Underline       =   True
       Visible         =   True
-      Width           =   280
+      Width           =   300
    End
    Begin DesktopSeparator sepBottom
       Active          =   False
@@ -505,7 +505,7 @@ Begin DesktopWindow Window1
       TabIndex        =   8
       TabPanelIndex   =   0
       Tooltip         =   ""
-      Top             =   265
+      Top             =   285
       Transparent     =   False
       Visible         =   True
       Width           =   600
@@ -514,14 +514,14 @@ Begin DesktopWindow Window1
       _mName          =   ""
       _mPanelIndex    =   0
    End
-   Begin DesktopLabel Label1
+   Begin DesktopLabel labDescription
       AllowAutoDeactivate=   True
       Bold            =   False
       Enabled         =   True
       FontName        =   "System"
       FontSize        =   0.0
       FontUnit        =   0
-      Height          =   138
+      Height          =   165
       Index           =   -2147483648
       Italic          =   False
       Left            =   20
@@ -536,7 +536,7 @@ Begin DesktopWindow Window1
       TabIndex        =   7
       TabPanelIndex   =   0
       TabStop         =   True
-      Text            =   "This Xojo Example Project includes a Post Build Script ""AzureTrustedSigning"" which codesigns the Windows builds using ""Azure Trusted Signing"".\r\n\r\nIt uses a Docker Container to perform the CodeSigning using jsign.\r\n\r\nThis allows the Windows application to be built and codesigned with the Xojo IDE running on all Windows, macOS or Linux."
+      Text            =   "This Xojo Example Project includes the Post Build Scripts ""CodeSign"", ""CreateZIP"" and ""InnoSetup"" which codesigns the Windows builds using Azure Trusted Signing (or a codesign certificate .pfx), creates a .zip and finally creates a codesigned Windows Installer using ""InnoSetup"".\n\nIt uses Docker Containers to perform the codesigning using jsign and running InnoSetup.\n\nThis allows the Windows application to be built, codesigned, zipped and creating a Windows Installer with the Xojo IDE running on all Windows, macOS or Linux."
       TextAlignment   =   0
       TextColor       =   &c000000
       Tooltip         =   ""
@@ -545,6 +545,70 @@ Begin DesktopWindow Window1
       Underline       =   False
       Visible         =   True
       Width           =   560
+   End
+   Begin DesktopLabel labLinkDockerHubAtsInnosetup
+      AllowAutoDeactivate=   True
+      Bold            =   False
+      Enabled         =   True
+      FontName        =   "System"
+      FontSize        =   0.0
+      FontUnit        =   0
+      Height          =   30
+      Index           =   -2147483648
+      Italic          =   False
+      Left            =   20
+      LockBottom      =   True
+      LockedInPosition=   True
+      LockLeft        =   True
+      LockRight       =   False
+      LockTop         =   False
+      Multiline       =   False
+      Scope           =   2
+      Selectable      =   False
+      TabIndex        =   18
+      TabPanelIndex   =   0
+      TabStop         =   True
+      Text            =   "Docker Hub: jotools/innosetup"
+      TextAlignment   =   1
+      TextColor       =   &c0072CE00
+      Tooltip         =   "https://hub.docker.com/r/jotools/innosetup"
+      Top             =   450
+      Transparent     =   False
+      Underline       =   True
+      Visible         =   True
+      Width           =   250
+   End
+   Begin DesktopLabel labLinkInnoSetup
+      AllowAutoDeactivate=   True
+      Bold            =   False
+      Enabled         =   True
+      FontName        =   "System"
+      FontSize        =   0.0
+      FontUnit        =   0
+      Height          =   30
+      Index           =   -2147483648
+      Italic          =   False
+      Left            =   20
+      LockBottom      =   True
+      LockedInPosition=   True
+      LockLeft        =   True
+      LockRight       =   False
+      LockTop         =   False
+      Multiline       =   False
+      Scope           =   2
+      Selectable      =   False
+      TabIndex        =   15
+      TabPanelIndex   =   0
+      TabStop         =   True
+      Text            =   "InnoSetup"
+      TextAlignment   =   1
+      TextColor       =   &c0072CE00
+      Tooltip         =   "https://jrsoftware.org/isinfo.php"
+      Top             =   390
+      Transparent     =   False
+      Underline       =   True
+      Visible         =   True
+      Width           =   250
    End
 End
 #tag EndDesktopWindow
@@ -556,7 +620,7 @@ End
 	#tag Constant, Name = kURL_PayPal, Type = String, Dynamic = False, Default = \"https://paypal.me/jotools", Scope = Private
 	#tag EndConstant
 
-	#tag Constant, Name = kURL_Repository, Type = String, Dynamic = False, Default = \"https://github.com/jo-tools/ats-codesign", Scope = Private
+	#tag Constant, Name = kURL_Repository, Type = String, Dynamic = False, Default = \"https://github.com/jo-tools/ats-codesign-innosetup", Scope = Private
 	#tag EndConstant
 
 
@@ -604,7 +668,6 @@ End
 #tag Events labAppName
 	#tag Event
 		Sub Opening()
-		  Me.Text = "ATS CodeSign | Docker"
 		  Me.FontSize = 18
 		  Me.Bold = True
 		  
@@ -649,6 +712,15 @@ End
 		  End If
 		  
 		  Me.Text = Str(App.MajorVersion) + "." + Str(App.MinorVersion) + "." + Str(App.BugVersion)
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events labThanks
+	#tag Event
+		Sub Opening()
+		  #If TargetLinux Then
+		    Me.FontSize = 12
+		  #EndIf
 		End Sub
 	#tag EndEvent
 #tag EndEvents
@@ -780,7 +852,7 @@ End
 		End Sub
 	#tag EndEvent
 #tag EndEvents
-#tag Events labLinkDockerHub
+#tag Events labLinkDockerHubAtsCodesign
 	#tag Event
 		Sub MouseExit()
 		  Me.MouseCursor = Nil
@@ -865,6 +937,72 @@ End
 	#tag EndEvent
 #tag EndEvents
 #tag Events labLinkKoalaDocs
+	#tag Event
+		Sub MouseExit()
+		  Me.MouseCursor = Nil
+		  
+		End Sub
+	#tag EndEvent
+	#tag Event
+		Sub MouseEnter()
+		  Me.MouseCursor = System.Cursors.FingerPointer
+		End Sub
+	#tag EndEvent
+	#tag Event
+		Function MouseDown(x As Integer, y As Integer) As Boolean
+		  #Pragma unused x
+		  #Pragma unused y
+		  
+		  Return True
+		End Function
+	#tag EndEvent
+	#tag Event
+		Sub MouseUp(x As Integer, y As Integer)
+		  If (x >= 0) And (x < Me.Width) And (y > 0) And (y < Me.Height) Then
+		    System.GotoURL(me.Tooltip)
+		  End If
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events labDescription
+	#tag Event
+		Sub Opening()
+		  #If TargetLinux Then
+		    Me.FontSize = 13
+		  #EndIf
+		  
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events labLinkDockerHubAtsInnosetup
+	#tag Event
+		Sub MouseExit()
+		  Me.MouseCursor = Nil
+		  
+		End Sub
+	#tag EndEvent
+	#tag Event
+		Sub MouseEnter()
+		  Me.MouseCursor = System.Cursors.FingerPointer
+		End Sub
+	#tag EndEvent
+	#tag Event
+		Function MouseDown(x As Integer, y As Integer) As Boolean
+		  #Pragma unused x
+		  #Pragma unused y
+		  
+		  Return True
+		End Function
+	#tag EndEvent
+	#tag Event
+		Sub MouseUp(x As Integer, y As Integer)
+		  If (x >= 0) And (x < Me.Width) And (y > 0) And (y < Me.Height) Then
+		    System.GotoURL(me.Tooltip)
+		  End If
+		End Sub
+	#tag EndEvent
+#tag EndEvents
+#tag Events labLinkInnoSetup
 	#tag Event
 		Sub MouseExit()
 		  Me.MouseCursor = Nil

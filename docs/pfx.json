@@ -1,0 +1,5 @@
+{
+  "Password": "xxx",
+  "TimestampServer": "http://timestamp.digicert.com",
+  "TimestampMode": "Authenticode"
+}
