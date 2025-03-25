@@ -586,10 +586,10 @@
 					If bCODESIGN_AVAILABLE Then
 					If (sFILE_ACS_JSON <> "") And (sFILE_AZURE_JSON <> "") Then
 					sINNOSETUP_PARAMETERS.Add("""/SATS=Z:/usr/local/bin/ats-codesign.bat $f""")
-					sINNOSETUP_PARAMETERS.Add("/DDoCodeSignATS")
+					sINNOSETUP_PARAMETERS.Add("/DcsCodeSignATS")
 					ElseIf (sFILE_PFX_JSON <> "") And (sFILE_PFX_CERTIFICATE <> "") Then
 					sINNOSETUP_PARAMETERS.Add("""/SATS=Z:/usr/local/bin/pfx-codesign.bat $f""")
-					sINNOSETUP_PARAMETERS.Add("/DDoCodeSignATS")
+					sINNOSETUP_PARAMETERS.Add("/DcsCodeSignATS")
 					End If
 					End If
 					
@@ -604,11 +604,11 @@
 					'Define Build Target for our universal InnoSetup Script
 					Select Case CurrentBuildTarget
 					Case 3 'Windows (Intel, 32Bit)
-					sINNOSETUP_PARAMETERS.Add("/DBuildTargetWIN32")
+					sINNOSETUP_PARAMETERS.Add("/DcsBuildTargetWIN32")
 					Case 19 'Windows (Intel, 64Bit)
-					sINNOSETUP_PARAMETERS.Add("/DBuildTargetWIN64")
+					sINNOSETUP_PARAMETERS.Add("/DcsBuildTargetWIN64")
 					Case 25 'Windows(ARM, 64Bit)
-					sINNOSETUP_PARAMETERS.Add("/DBuildTargetARM64")
+					sINNOSETUP_PARAMETERS.Add("/DcsBuildTargetARM64")
 					End Select
 					
 					sINNOSETUP_PARAMETERS.Add("/O""Z:/data""") 'Output in Folder

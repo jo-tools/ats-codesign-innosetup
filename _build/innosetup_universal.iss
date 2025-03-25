@@ -1,34 +1,34 @@
-; ******************************************************
+; ************************************************************************
 ; Parameters for calling this universal InnoSetup Script
-; ******************************************************
+; ************************************************************************
 ; App / Product Information
-; ------------------------------------------------------
+; ------------------------------------------------------------------------
 ; /DcsProductName="My Application"
 ; /DcsProductNameWithStageCode="My Application [BETA]"
 ; /DcsExeName="MyExecutable.exe"
 ; /DcsAppPublisher="My App Publisher"
 ; /DcsAppPublisherURL="https://www.mycompany.org/"
 ; /DcsOutputBaseFilename="Setup_MyApplication"
-; ******************************************************
+; ************************************************************************
 ; Build Target (for Installation Requirements)
-; ------------------------------------------------------
+; ------------------------------------------------------------------------
 ; one of the following
-; /DBuildTargetWIN32 | /DBuildTargetWIN64 | /DBuildTargetARM64
-; ******************************************************
+; /DcscsBuildTargetWIN32 | /DcsBuildTargetWIN64 | /DcsBuildTargetARM64
+; ************************************************************************
 ; Enable CodeSigning using Azure Trusted Signing (or .pfx)
 ; Note: ATS here doesn't mean to support Azure Trusted Signing only.
 ;       The Parameter just enables that this .iss will use the
 ;       Signtool command, which we label "ATS" here.
 ;       So calling the .iss will need the CodeSign Script "ATS" defined.
 ;       And that might sign with either Azure Trusted Signing or .pfx
-; ------------------------------------------------------
-; /DDoCodeSignATS
+; ------------------------------------------------------------------------
+; /DcsCodeSignATS
 ;
 ; If CodeSigning is enabled: Set CodeSign Tool with label 'ATS'
 ; which does the actual codesigning (either with Azure Trusted
 ; Signing or a .pfx)
 ; "/SATS=Z:/usr/local/bin/[ats|pfx]-codesign.bat $f"
-; ******************************************************
+; ************************************************************************
 
 
 #ifndef csProductName
@@ -90,16 +90,16 @@ WizardStyle=modern
 ; Installation Settings
 ; Note: Remove 'not arm64' if you want to allow WIN32 or WIN64 apps to run on Windows ARM
 ;       This example will only allow installing the ARM64 build on Windows ARM
-#if defined(BuildTargetWIN32)
+#if defined(cscsBuildTargetWIN32)
 ; never allow a WIN32 to be installed on ARM64
   ArchitecturesAllowed=not arm64
-#elif defined(BuildTargetWIN64)
+#elif defined(csBuildTargetWIN64)
   ArchitecturesInstallIn64BitMode=x64compatible
 ; if you want to prevent installing the WIN64 Intel Build on ARM64 (even if it works)
 ; ArchitecturesAllowed=x64compatible and not arm64
 ; allow installing the WIN64 Intel Build on ARM64
   ArchitecturesAllowed=x64compatible
-#elif defined(BuildTargetARM64)
+#elif defined(csBuildTargetARM64)
 ; require ARM64 - the application won't run on Intel
   ArchitecturesInstallIn64BitMode=arm64
   ArchitecturesAllowed=arm64
@@ -122,8 +122,8 @@ ChangesAssociations=yes
 MinVersion=6.3.9600
 
 
-; Set Signtool only if called with Parameter /DDoCodeSignATS
-#ifdef DoCodeSignATS
+; Set Signtool only if called with Parameter /DcsCodeSignATS
+#ifdef csCodeSignATS
   Signtool=ATS
 #endif
 ; We don't set SignedUninstaller, but use it's Default value: yes if a SignTool is set, no otherwise
