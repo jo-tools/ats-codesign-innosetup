@@ -49,10 +49,10 @@ Please refer to the [Documentation](./dockerimage/innosetup/) for the provided [
 
 This repository includes a Xojo Example Project `ATS CodeSign InnoSetup.xojo_project` which uses
 - a Post Build Script `CodeSign` to codesign the Windows builds using [Azure Trusted Signing](https://azure.microsoft.com/en-us/products/trusted-signing) *(or a codesign certificate `.pfx`)*
-  - using the Docker Container ([jotools/codesign](https://hub.docker.com/r/jotools/codesign)) to perform the codesigning using [jsign](https://github.com/ebourg/jsign)
+  - using the Docker Container [`jotools/codesign`](https://hub.docker.com/r/jotools/codesign) to perform the codesigning using [jsign](https://github.com/ebourg/jsign)
 - a Post Build Script `CreateZIP` to package the built and codesigned application in a `.zip`
 - a Post Build Script `InnoSetup` to build a *(codesigned)* windows installer
-  - using the Docker Container ([jotools/innosetup](https://hub.docker.com/r/jotools/innosetup)) to create the windows installer with [InnoSetup](https://jrsoftware.org/isinfo.php)
+  - using the Docker Container [`jotools/innosetup`](https://hub.docker.com/r/jotools/innosetup) to create the windows installer with [InnoSetup](https://jrsoftware.org/isinfo.php)
 
 This allows the Windows application to be built and codesigned with the Xojo IDE running on all Windows, macOS or Linux.
 
@@ -78,7 +78,10 @@ The Desktop application Xojo example project `ATS CodeSign InnoSetup.xojo_projec
 
 ### How to use in your own Xojo project?
 
-#### CodeSign (Azure Trusted Signing | PFX)
+<details>
+
+<summary>CodeSign (Azure Trusted Signing | PFX)</summary>
+
 1. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `CodeSign` provided in `ATS CodeSign InnoSetup.xojo_project`
 2. Make sure this Post Build Script runs after the Step 'Windows: Build'
 3. Read the comments in the provided Post Build Script, modify it according to your needs  
@@ -91,13 +94,21 @@ The Desktop application Xojo example project `ATS CodeSign InnoSetup.xojo_projec
    - Codesign all `.exe` and `.dll` files for Final Builds
      - *Codesign just all `.exe`, but not the `.dll` files for Beta/Alpha/Development Builds*
 
-#### CreateZIP
+</details>
+
+<details>
+
+<summary>CreateZIP</summary>
 
 1. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `CreateZIP` provided in `ATS CodeSign InnoSetup.xojo_project`
 2. Make sure this Post Build Script runs after the Step 'Windows: Build' *(and after `AzureTrustedSigning` to ensure you zip the codesigned application)*
 3. Read the comments in the provided Post Build Script, modify it according to your needs
 
-#### InnoSetup
+</details>
+
+<details>
+
+<summary>InnoSetup</summary>
 
 1. Copy the folder and file `_build/innosetup_universal.iss` to your project location
    - *this is a universal InnoSetup script which should fit basic Xojo built applications*
@@ -118,6 +129,8 @@ The Desktop application Xojo example project `ATS CodeSign InnoSetup.xojo_projec
    - Picks up the configuration of `CodeSign`
      - if available, it codesigns the (Un)Installer
      - if not found, it ignores codesigning and just creates an installer
+
+</details>
 
 ## Security Warning
 
