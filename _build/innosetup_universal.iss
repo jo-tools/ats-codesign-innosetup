@@ -13,7 +13,7 @@
 ; Build Target (for Installation Requirements)
 ; ------------------------------------------------------------------------
 ; one of the following
-; /DcscsBuildTargetWIN32 | /DcsBuildTargetWIN64 | /DcsBuildTargetARM64
+; /DcsBuildTargetWIN32 | /DcsBuildTargetWIN64 | /DcsBuildTargetARM64
 ; ************************************************************************
 ; Enable CodeSigning using Azure Trusted Signing (or .pfx)
 ; Note: ATS here doesn't mean to support Azure Trusted Signing only.
@@ -90,7 +90,7 @@ WizardStyle=modern
 ; Installation Settings
 ; Note: Remove 'not arm64' if you want to allow WIN32 or WIN64 apps to run on Windows ARM
 ;       This example will only allow installing the ARM64 build on Windows ARM
-#if defined(cscsBuildTargetWIN32)
+#if defined(csBuildTargetWIN32)
 ; never allow a WIN32 to be installed on ARM64
   ArchitecturesAllowed=not arm64
 #elif defined(csBuildTargetWIN64)
