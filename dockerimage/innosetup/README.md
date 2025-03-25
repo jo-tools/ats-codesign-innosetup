@@ -164,7 +164,7 @@ Create the following `.json` file on your host machine:
 **`pfx.json`**  
 ```
 {
-  "Password": "xxx",
+  "Password": "pfx-password",
   "TimestampServer": "http://timestamp.digicert.com",
   "TimestampMode": "Authenticode"
 }
@@ -330,4 +330,44 @@ docker run \
     -v /local/path/to/build-folder:/data \
     jotools/innosetup
 ```
+</details>
+
+## Security Warning
+
+The provided Scripts `ats-codesign.sh` and `pfx-codesign.sh` allow retrieving sensitive information *(such as a Client Secret or Certificate Password)* from a plaintext `.json` configuration file, which is **not secure**.
+
+That's just intended for demonstration and testing purposes only. If using similar logic in a production environment, implement a secure method for managing secrets to protect sensitive information.
+
+Retrieve the secrets from a secure storage, and run the Docker Container from the script with the corresponding Environment Variables, omitting the secrets in the `.json` configuration files.
+
+<details>
+
+<summary>Security Risks</summary>
+
+Storing secrets in plaintext files poses significant security risks, including:  
+- **Exposure to unauthorized users** if file permissions are not properly set.  
+- **Inclusion in backups or version control** (e.g., Git), leading to unintentional leaks.  
+- **Easy access for malware or attackers** on a compromised system.
+
+</details>
+
+<details>
+
+<summary>Secure Alternatives</summary>
+
+Instead of storing secrets in a `.json` configuration file, consider these more secure approaches:  
+
+1. Use OS-Level Secret Storage  
+   - **macOS**: Store secrets in **Keychain Access** and retrieve them using the `security` CLI tool.  
+   - **Linux**: Use **GNOME Keyring** or **KWallet** to securely store and retrieve secrets.  
+   - **Windows**: Store credentials in **Windows Credential Manager** and access them via PowerShell.  
+
+2. Use a Secrets Manager  
+   - Cloud providers like **AWS Secrets Manager, Azure Key Vault, or GCP Secret Manager** offer secure, centralized secret storage with access control.  
+   - Local alternatives like **1Password CLI, Bitwarden CLI, or HashiCorp Vault** allow secure retrieval of secrets at runtime.  
+
+3. Use GitHub Actions Secrets *(for CI/CD Pipelines)*  
+- If using this Docker Container in **GitHub Actions**, store secrets securely in **GitHub Secrets**.  
+- Reference secrets in workflows using `${{ secrets.MY_SECRET }}` instead of storing them in the repository.  
+
 </details>
