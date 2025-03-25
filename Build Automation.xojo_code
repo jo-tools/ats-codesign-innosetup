@@ -420,28 +420,42 @@
 					
 					'Xojo Project Settings
 					Var sBUILD_LOCATION As String = CurrentBuildLocation
-					Var sAPP_NAME As String = CurrentBuildAppName
-					If (sAPP_NAME.Right(4) = ".exe") Then
-					sAPP_NAME = sAPP_NAME.Left(sAPP_NAME.Length - 4)
+					Var sAPP_EXE_BASEFILENAME As String = CurrentBuildAppName
+					If (sAPP_EXE_BASEFILENAME.Right(4) = ".exe") Then
+					sAPP_EXE_BASEFILENAME = sAPP_EXE_BASEFILENAME.Left(sAPP_EXE_BASEFILENAME.Length - 4)
 					End If
-					Var sAPP_PRODUCTNAME As String = PropertyValue("App.ProductName")
+					Var sAPP_PRODUCTNAME As String = PropertyValue("App.ProductName").Trim
 					If (sAPP_PRODUCTNAME = "") Then
-					sAPP_PRODUCTNAME = sAPP_NAME
+					If (Not bSILENT) Then
+					Print "InnoSetup: App.ProductName is empty" + EndOfLine + EndOfLine + _
+					"Set it in Xojo Build Settings: Windows"
+					Return
 					End If
-					Var sAPP_COMPANYNAME As String = PropertyValue("App.CompanyName")
+					sAPP_PRODUCTNAME = sAPP_EXE_BASEFILENAME
+					End If
+					Var sAPP_COMPANYNAME As String = PropertyValue("App.CompanyName").Trim
 					If (sAPP_COMPANYNAME = "") Then
-					sAPP_COMPANYNAME = sAPP_NAME
+					If (Not bSILENT) Then
+					Print "InnoSetup: App.CompanyName is empty" + EndOfLine + EndOfLine + _
+					"Set it in Xojo Build Settings: Windows"
+					Return
+					End If
+					sAPP_COMPANYNAME = sAPP_EXE_BASEFILENAME
 					End If
 					
-					'Check Stage Code for Installer Filename
+					'Check Stage Code for Application Version Name and Installer Filename
 					Var sSTAGECODE_SUFFIX As String
+					Var sAPP_PRODUCTNAME_STAGECODE_SUFFIX As String
 					Select Case PropertyValue("App.StageCode")
 					Case "0" 'Development
 					sSTAGECODE_SUFFIX = "-dev"
+					sAPP_PRODUCTNAME_STAGECODE_SUFFIX = "[Dev]"
 					Case "1" 'Alpha
 					sSTAGECODE_SUFFIX = "-alpha"
+					sAPP_PRODUCTNAME_STAGECODE_SUFFIX = "[Alpha]"
 					Case "2" 'Beta
 					sSTAGECODE_SUFFIX = "-beta"
+					sAPP_PRODUCTNAME_STAGECODE_SUFFIX = "[Beta]"
 					Case "3" 'Final
 					'not used in filename
 					End Select
@@ -450,18 +464,20 @@
 					Var sSETUP_BASEFILENAME As String
 					Select Case CurrentBuildTarget
 					Case 3 'Windows (Intel, 32Bit)
-					sSETUP_BASEFILENAME = sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Setup_Intel_32Bit"
+					sSETUP_BASEFILENAME = sAPP_EXE_BASEFILENAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Setup_Intel_32Bit"
 					Case 19 'Windows (Intel, 64Bit)
-					sSETUP_BASEFILENAME = sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Setup_Intel_64Bit"
+					sSETUP_BASEFILENAME = sAPP_EXE_BASEFILENAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Setup_Intel_64Bit"
 					Case 25 'Windows(ARM, 64Bit)
-					sSETUP_BASEFILENAME = sAPP_NAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Setup_ARM_64Bit"
+					sSETUP_BASEFILENAME = sAPP_EXE_BASEFILENAME.ReplaceAll(" ", "_") + sSTAGECODE_SUFFIX + "_Setup_ARM_64Bit"
 					Else
 					Return
 					End Select
 					
 					'Set Parameters for InnoSetup Script
 					Var sISS_csProductName As String = sAPP_PRODUCTNAME
-					Var sISS_csExeName As String = sAPP_NAME + ".exe" // we removed that before
+					Var sISS_csProductNameWithStageCode As String = sAPP_PRODUCTNAME + " " + sAPP_PRODUCTNAME_STAGECODE_SUFFIX
+					sISS_csProductNameWithStageCode = sISS_csProductNameWithStageCode.Trim 'Trim if no Suffix
+					Var sISS_csExeName As String = sAPP_EXE_BASEFILENAME + ".exe" // we removed that before
 					Var sISS_csAppPublisher As String = sAPP_COMPANYNAME
 					Var sISS_csAppPublisherURL As String = sAPP_PUBLISHER_URL
 					Var sISS_csOutputBaseFilename As String = sSETUP_BASEFILENAME
@@ -579,6 +595,7 @@
 					
 					'Parameters for our universal InnoSetup Script
 					sINNOSETUP_PARAMETERS.Add("/DcsProductName=""" + sISS_csProductName + """")
+					sINNOSETUP_PARAMETERS.Add("/DcsProductNameWithStageCode=""" + sISS_csProductNameWithStageCode + """")
 					sINNOSETUP_PARAMETERS.Add("/DcsExeName=""" + sISS_csExeName + """")
 					sINNOSETUP_PARAMETERS.Add("/DcsAppPublisher=""" + sISS_csAppPublisher + """")
 					sINNOSETUP_PARAMETERS.Add("/DcsAppPublisherURL=""" + sISS_csAppPublisherURL + """")

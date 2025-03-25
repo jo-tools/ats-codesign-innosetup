@@ -4,6 +4,7 @@
 ; App / Product Information
 ; ------------------------------------------------------
 ; /DcsProductName="My Application"
+; /DcsProductNameWithStageCode="My Application [BETA]"
 ; /DcsExeName="MyExecutable.exe"
 ; /DcsAppPublisher="My App Publisher"
 ; /DcsAppPublisherURL="https://www.mycompany.org/"
@@ -32,6 +33,9 @@
 
 #ifndef csProductName
   #define csProductName "My Application"
+#endif
+#ifndef csProductNameWithStageCode
+  #define csProductNameWithStageCode "My Application [BETA]"
 #endif
 #ifndef csExeName
   #define csExeName "MyExecutable.exe"
@@ -76,7 +80,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID from the menu.) 
 AppId={#csProductName}
 AppName={#csProductName}
-AppVerName={#csProductName}
+AppVerName={#csProductNameWithStageCode} {#ApplicationVersion}
 AppVersion={#ApplicationVersion}
 AppPublisher={#csAppPublisher}
 AppPublisherURL={#csAppPublisherURL}
