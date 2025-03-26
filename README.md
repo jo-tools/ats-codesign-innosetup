@@ -19,8 +19,10 @@ Codesigning is using [jsign](https://github.com/ebourg/jsign) in a Docker Contai
   - [Azure Trusted Signing](https://azure.microsoft.com/en-us/products/trusted-signing)  
     To [get you started]((https://learn.microsoft.com/en-us/azure/trusted-signing/quickstart)) have a look at the included [docs](./docs/).  
     You'll find some useful links and archived Web content there.
-  - Codesign certificate `.pfx`  
-    See example configuration in the included [docs](./docs/).
+  - Codesign certificate `.pfx`
+- Codesigning `.json`configuration files
+  - See the [provided template configuration files](./docs/)
+
 - Have [Docker](https://www.docker.com/products/docker-desktop/) up and running
 
 ### InnoSetup
@@ -82,12 +84,15 @@ The Desktop application Xojo example project `ATS CodeSign InnoSetup.xojo_projec
 
 <summary>CodeSign (Azure Trusted Signing | PFX)</summary>
 
-1. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `CodeSign` provided in `ATS CodeSign InnoSetup.xojo_project`
-2. Make sure this Post Build Script runs after the Step 'Windows: Build'
-3. Read the comments in the provided Post Build Script, modify it according to your needs  
+1. Set up the local configuration files for CodeSign.  
+   The Post Build Script(s) expect the following `.json` configuration file(s):
+   - [Azure Trusted Signing](./docs/ats-codesign/)
+   - [Codesigning Certificate `.pfx`](./docs/pfx-codesign/)
+2. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `CodeSign` provided in `ATS CodeSign InnoSetup.xojo_project`
+3. Make sure the Post Build Script `CodeSign` runs after the Step 'Windows: Build'
+4. Read the comments in the provided Post Build Script, modify it according to your needs  
    The default settings are:
    - use the Docker Container [`jotools/codesign`](https://hub.docker.com/r/jotools/codesign)
-     - *you might want to build your own Docker Container and use that one instead*
      - *if you're using the `InnoSetup` step as well, then change it to use the Docker Container [`jotools/innosetup`](https://hub.docker.com/r/jotools/innosetup)* so that you don't need having two different Docker Images taking up space on your machine
    - Codesign Final and Beta Builds
      - *no Codesigning for Alpha- and Development Builds*
@@ -115,18 +120,22 @@ The Desktop application Xojo example project `ATS CodeSign InnoSetup.xojo_projec
      - *it's prepared for all Windows Build Targets (WIN32, WIN64, ARM64)*
      - *it uses parameters so that it can be configured from within the Post Build Script*
    - *or use your own InnoSetup script*
-2. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `InnoSetup` provided in `ATS CodeSign InnoSetup.xojo_project`
-3. Make sure this Post Build Script runs after the Step 'Windows: Build' *(and after `CodeSign` to ensure you include the codesigned application in the windows installer)*
-4. Read the comments in the provided Post Build Script, modify it according to your needs *(e.g. change the value of `sAPP_PUBLISHER_URL` to your own website)*  
+2. Optional *(only if you want to codesign the Windows Installers)*:  
+   Set up the local configuration files for CodeSign.  
+   The Post Build Script(s) expect the following `.json` configuration file(s):
+   - [Azure Trusted Signing](./docs/ats-codesign/)
+   - [Codesigning Certificate `.pfx`](./docs/pfx-codesign/)
+3. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `InnoSetup` provided in `ATS CodeSign InnoSetup.xojo_project`
+4. Make sure this Post Build Script runs after the Step 'Windows: Build' *(and after `CodeSign` to ensure you include the codesigned application in the windows installer)*
+5. Read the comments in the provided Post Build Script, modify it according to your needs *(e.g. change the value of `sAPP_PUBLISHER_URL` to your own website)*  
    The example Post Build Script is designed to be quite generic and using the provided universal innosetup script will:
    - use the Docker Container [`jotools/innosetup`](https://hub.docker.com/r/jotools/innosetup)
-     - *you might want to build your own Docker Container and use that one instead*
-   - Create a Windows Installer for Final and Beta Builds
+   - create a Windows Installer for Final and Beta Builds
      - *no Windows Installer for Alpha- and Development Builds*
-   - Picks up necessary information from the Xojo Project *(so make sure you've filled out the values in the Xojo IDE under 'Build Settings: Windows)*, e.g.
+   - pick up necessary information from the Xojo Project *(so make sure you've filled out the values in the Xojo IDE under 'Build Settings: Windows)*, e.g.
      - `App.ProductName`, `App.CompanyName`
      - Filename of the application's `.exe`
-   - Picks up the configuration of `CodeSign`
+   - picks up the configuration of `CodeSign`
      - if available, it codesigns the (Un)Installer
      - if not found, it ignores codesigning and just creates an installer
 
@@ -134,11 +143,14 @@ The Desktop application Xojo example project `ATS CodeSign InnoSetup.xojo_projec
 
 ## Security Warning
 
-The Post Build Script in the example project is intended as an example to demonstrate the functionality. However, it retrieves sensitive information *(such as a Client Secret or Certificate Password)* from a plaintext `.json` configuration file, which is **not secure**.
+The Post Build Scripts in the example project are intended as an example to demonstrate the functionality. They allow to retrieve sensitive information *(such as a Client Secret or Certificate Password)* from a plaintext `.json` configuration file, which is **not secure**.  
+However, the provided Post Build Scripts also support retrieving credentials from a Secret Storage. It's highly recommended to use that approach.
 
-If using similar logic in a production environment, implement a secure method for managing secrets to protect sensitive information.
+If using similar logic in a production environment, make sure to implement a secure method for managing secrets to protect sensitive information.
 
-Retrieve the secrets in the Post Build Script from a secure storage, and run the Docker Container from the script with the corresponding Environment Variables, omitting the secrets in the `.json` configuration files.
+Retrieve the secrets in the Post Build Script from a secure storage, and run the Docker Container from the script with the corresponding Environment Variables, omitting the secrets in the `.json` configuration files.  
+
+
 
 <details>
 
