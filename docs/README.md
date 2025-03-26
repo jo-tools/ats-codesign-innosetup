@@ -41,5 +41,5 @@ Template configuration files for Docker Hub: [`jotools/codesign`](https://hub.do
 
 These articles have been very helpful and are worth being preserved as `.pdf`.
 
-- [Melatonin: Code signing with ATS](./01_Melatonin-Dev_AzureTrustedSigning.pdf)
-- [KoalaDocs: ATS | signtool.exe](./02_KoalaDocs_Signtool.pdf)
+- [Melatonin: Code signing with ATS](./archive/01_Melatonin-Dev_AzureTrustedSigning.pdf)
+- [KoalaDocs: ATS | signtool.exe](./archive/02_KoalaDocs_Signtool.pdf)
