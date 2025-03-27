@@ -25,6 +25,21 @@
 ###############################################################################################
 
 
+###############################################################################################
+# Note: Special Characters in Credential                                                      #
+#       Characters that may have an impact within a shell command, e.g.: ^&%\<>               #
+#---------------------------------------------------------------------------------------------#
+# The Xojo Post Build Script tries to escape the Credential when putting it into the Shell    #
+# Command to run Docker. It's quite tricky to get it right (x-platform) - especially Windows  #
+# needs different escaping depending on other characters within the to-be-escaped string.     #
+# So unfortunately not every Credential will work out of the box in the Xojo Example Project. #
+# If you suspect an issue with because of such characters in your credential:                 #
+# - Try without this script (put it in the .json file)                                        #
+# - If it works in the .json - modify the Post Build Scripts so that your special             #
+#   escaping needs are covered                                                                #
+###############################################################################################
+
+
 # Install the CredentialManager module if not installed
 if (-not (Get-Module -ListAvailable -Name CredentialManager)) {
     Install-Module -Name CredentialManager -Force -Scope CurrentUser
