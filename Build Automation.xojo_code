@@ -259,8 +259,7 @@
 					sDOCKER_IMAGE + " " + _
 					String.FromArray(sSIGN_FILES, " ")
 					End If
-					Clipboard=sSIGN_COMMAND
-					Return
+					
 					Var iSIGN_RESULT As Integer
 					Var sSIGN_OUTPUT As String = DoShellCommand(sSIGN_COMMAND, 0, iSIGN_RESULT)
 					
