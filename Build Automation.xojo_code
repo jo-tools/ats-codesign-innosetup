@@ -174,8 +174,8 @@
 					End If
 					
 					'Get Credential from Secure Storage
-					Var sATS_CREDENTIAL_ESCAPED As String
-					Var sPFX_CREDENTIAL_ESCAPED As String
+					Var bENV_ATS_CREDENTIAL As Boolean
+					Var bENV_PFX_CREDENTIAL As Boolean
 					
 					If bCODESIGN_ATS Or bCODESIGN_PFX Then
 					Var SFILE_CREDENTIAL As String
@@ -211,18 +211,13 @@
 					Return
 					End If
 					
-					'Escape for putting it into the DoShellCommand
-					Var sCREDENTIAL_ESCAPED As String
-					If TargetWindows Then 'Xojo IDE is running on Windows
-					sCREDENTIAL_ESCAPED = sCREDENTIAL.ReplaceAll("""", "\""")
-					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
-					sCREDENTIAL_ESCAPED = sCREDENTIAL.ReplaceAll("\", "\\\").ReplaceAll("`", "\`").ReplaceAll("""", "\""")
-					End If
-					
+					'Use Environment Variable
 					If bCODESIGN_ATS Then
-					sATS_CREDENTIAL_ESCAPED = sCREDENTIAL_ESCAPED
+					EnvironmentVariable("AZURE_CLIENT_SECRET") = sCREDENTIAL
+					bENV_ATS_CREDENTIAL = true
 					ElseIf bCODESIGN_PFX Then
-					sPFX_CREDENTIAL_ESCAPED = sCREDENTIAL_ESCAPED
+					EnvironmentVariable("PFX_PASSWORD") = sCREDENTIAL
+					bENV_PFX_CREDENTIAL = true
 					End If
 					End If
 					End If
@@ -238,7 +233,7 @@
 					"--rm " + _
 					"-v """ + sFILE_ACS_JSON + """:/etc/ats-codesign/acs.json " + _
 					"-v """ + sFILE_AZURE_JSON + """:/etc/ats-codesign/azure.json " + _
-					If(sATS_CREDENTIAL_ESCAPED <> "", "-e AZURE_CLIENT_SECRET=""" + sATS_CREDENTIAL_ESCAPED + """ ", "") + _
+					If(bENV_ATS_CREDENTIAL, "-e AZURE_CLIENT_SECRET ", "") + _
 					"-v """ + sBUILD_LOCATION + """:/data " + _
 					"-w /data " + _
 					"--entrypoint " + sSIGN_ENTRYPOINT + " " + _
@@ -252,7 +247,7 @@
 					"--rm " + _
 					"-v """ + sFILE_PFX_JSON + """:/etc/pfx-codesign/pfx.json " + _
 					"-v """ + sFILE_PFX_CERTIFICATE + """:/etc/pfx-codesign/certificate.pfx " + _
-					If(sPFX_CREDENTIAL_ESCAPED <> "", "-e PFX_PASSWORD=""" + sPFX_CREDENTIAL_ESCAPED + """ ", "") + _
+					If(bENV_PFX_CREDENTIAL, "-e PFX_PASSWORD ", "") + _
 					"-v """ + sBUILD_LOCATION + """:/data " + _
 					"-w /data " + _
 					"--entrypoint " + sSIGN_ENTRYPOINT + " " + _
@@ -680,8 +675,8 @@
 					'Run InnoSetup (and CodeSign) in Docker Container
 					Var sINNOSETUP_PARAMETERS() As String
 					
-					Var sATS_CREDENTIAL_ESCAPED As String
-					Var sPFX_CREDENTIAL_ESCAPED As String
+					Var bENV_ATS_CREDENTIAL As Boolean
+					Var bENV_PFX_CREDENTIAL As Boolean
 					
 					'Enable Codesigning
 					If bCODESIGN_AVAILABLE Then
@@ -728,18 +723,13 @@
 					Return
 					End If
 					
-					'Escape for putting it into the DoShellCommand
-					Var sCREDENTIAL_ESCAPED As String
-					If TargetWindows Then 'Xojo IDE is running on Windows
-					sCREDENTIAL_ESCAPED = sCREDENTIAL.ReplaceAll("""", "\""")
-					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
-					sCREDENTIAL_ESCAPED = sCREDENTIAL.ReplaceAll("\", "\\\").ReplaceAll("`", "\`").ReplaceAll("""", "\""")
-					End If
-					
+					'Use Environment Variable
 					If bCODESIGN_ATS Then
-					sATS_CREDENTIAL_ESCAPED = sCREDENTIAL_ESCAPED
+					EnvironmentVariable("AZURE_CLIENT_SECRET") = sCREDENTIAL
+					bENV_ATS_CREDENTIAL = true
 					ElseIf bCODESIGN_PFX Then
-					sPFX_CREDENTIAL_ESCAPED = sCREDENTIAL_ESCAPED
+					EnvironmentVariable("PFX_PASSWORD") = sCREDENTIAL
+					bENV_PFX_CREDENTIAL = true
 					End If
 					End If
 					End If
@@ -779,10 +769,10 @@
 					"--rm " + _
 					If(sFILE_ACS_JSON <> "", "-v """ + sFILE_ACS_JSON + """:/etc/ats-codesign/acs.json ", "") + _
 					If(sFILE_AZURE_JSON <> "", "-v """ + sFILE_AZURE_JSON + """:/etc/ats-codesign/azure.json ", "") + _
-					If(sATS_CREDENTIAL_ESCAPED <> "", "-e AZURE_CLIENT_SECRET=""" + sATS_CREDENTIAL_ESCAPED + """ ", "") + _
+					If(bENV_ATS_CREDENTIAL, "-e AZURE_CLIENT_SECRET ", "") + _
 					If(sFILE_PFX_JSON <> "", "-v """ + sFILE_PFX_JSON + """:/etc/pfx-codesign/pfx.json ", "") + _
 					If(sFILE_PFX_CERTIFICATE <> "", "-v """ + sFILE_PFX_CERTIFICATE + """:/etc/pfx-codesign/certificate.pfx ", "") + _
-					If(sPFX_CREDENTIAL_ESCAPED <> "", "-e PFX_PASSWORD=""" + sPFX_CREDENTIAL_ESCAPED + """ ", "") + _
+					If(bENV_PFX_CREDENTIAL, "-e PFX_PASSWORD ", "") + _
 					"-v """ + sFOLDER_BASE + """:/data " + _
 					"-v """ + sINNOSETUP_SCRIPT + """:/tmp/innosetup-script.iss " + _
 					"-w /data " + _
