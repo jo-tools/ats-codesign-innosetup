@@ -1,3 +1,7 @@
+#############################################################################
+# Run PowerShell Command from Clipboard                                     #
+#############################################################################
+
 # Get the command from the clipboard
 $command = Get-Clipboard
 
