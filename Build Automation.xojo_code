@@ -25,8 +25,10 @@
 					' 1.  Set up Codesigning with one of the following
 					' 1.1 Azure Trusted Signing
 					'     Requires acs.json and azure.json in ~/.ats-codesign
+					'     Strongly recommends ats-codesign-credential.sh in ~/.ats-codesign
 					' 1.2 CodeSign Certificate .pfx
 					'     Requires pfx.json and certificate.pfx in ~/.pfx-codesign
+					'     Strongly recommends pfx-codesign-credential.sh in ~/.pfx-codesign
 					' 2.  Have Docker up and running
 					' 3.  Read the comments in this Post Build Script
 					' 4.  Modify it according to your needs
@@ -58,8 +60,10 @@
 					' Security Warning
 					'*********************************************************************************************
 					'This Post Build Script is intended as an example to demonstrate the functionality.
-					'However, it retrieves sensitive information (such As a Client Secret Or Certificate Password)
-					'from a plaintext `.json` configuration file, which is not secure.
+					'However, it allows to retrieve sensitive information (such as a Client Secret or certificate
+					'Password from a plaintext `.json` configuration file, which is not secure.
+					'However, the provided Post Build Script also supports retrieving credentials from a
+					'Secret Storage. It's highly recommended to use that approach.
 					'If using similar logic in a production environment, implement a secure method for managing
 					'secrets to protect sensitive information.
 					'Retrieve the secrets In the Post Build Script from a secure storage, and run the
@@ -143,7 +147,10 @@
 					Return
 					End If
 					
-					If ((sFILE_ACS_JSON = "") Or (sFILE_AZURE_JSON = "")) And ((sFILE_PFX_JSON = "") Or (sFILE_PFX_CERTIFICATE = "")) Then
+					Var bCODESIGN_ATS As Boolean = (sFILE_ACS_JSON <> "") And (sFILE_AZURE_JSON <> "")
+					Var bCODESIGN_PFX As Boolean = (sFILE_PFX_JSON <> "") And (sFILE_PFX_CERTIFICATE <> "")
+					
+					If (Not bCODESIGN_ATS) And (Not bCODESIGN_PFX) Then
 					If (Not bSILENT) Then
 					Print "Codesign:" + EndOfLine + _
 					"acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]" + EndOfLine + _
@@ -166,10 +173,59 @@
 					Return
 					End If
 					
+					'Get Credential from Secure Storage
+					Var bENV_ATS_CREDENTIAL As Boolean
+					Var bENV_PFX_CREDENTIAL As Boolean
+					
+					If bCODESIGN_ATS Or bCODESIGN_PFX Then
+					Var SFILE_CREDENTIAL As String
+					Var sCREDENTIAL_COMMAND As String
+					
+					If TargetWindows Then 'Xojo IDE is running on Windows
+					If bCODESIGN_ATS Then
+					SFILE_CREDENTIAL = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\ats-codesign-credential.ps1 echo %USERPROFILE%\.ats-codesign\ats-codesign-credential.ps1").Trim
+					ElseIf bCODESIGN_PFX Then
+					SFILE_CREDENTIAL = DoShellCommand("if exist %USERPROFILE%\.pfx-codesign\pfx-codesign-credential.ps1 echo %USERPROFILE%\.pfx-codesign\pfx-codesign-credential.ps1").Trim
+					End If
+					If (SFILE_CREDENTIAL <> "") Then
+					sCREDENTIAL_COMMAND = "powershell """ + SFILE_CREDENTIAL + """"
+					End If
+					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
+					If bCODESIGN_ATS Then
+					SFILE_CREDENTIAL = DoShellCommand("[ -f ~/.ats-codesign/ats-codesign-credential.sh ] && echo ~/.ats-codesign/ats-codesign-credential.sh").Trim
+					ElseIf bCODESIGN_PFX Then
+					SFILE_CREDENTIAL = DoShellCommand("[ -f ~/.pfx-codesign/pfx-codesign-credential.sh ] && echo ~/.pfx-codesign/pfx-codesign-credential.sh").Trim
+					End If
+					If (SFILE_CREDENTIAL <> "") Then
+					Call DoShellCommand("chmod 755 """ + SFILE_CREDENTIAL + """") 'just to make sure it's executable
+					sCREDENTIAL_COMMAND = SFILE_CREDENTIAL
+					End If
+					End If
+					
+					If (sCREDENTIAL_COMMAND <> "") Then
+					'Once the Credential Helper Script is in place, we expect to get a value from it
+					Var iCREDENTIAL_RESULT As Integer
+					Var sCREDENTIAL As String = DoShellCommand(sCREDENTIAL_COMMAND, 0, iCREDENTIAL_RESULT).Trim
+					If (iCREDENTIAL_RESULT <> 0) Or (sCREDENTIAL = "") Then
+					Print  "Codesign: Could not retrieve " + If(bCODESIGN_ATS, "ATS", "PFX") + " Credential"
+					Return
+					End If
+					
+					'Use Environment Variable
+					If bCODESIGN_ATS Then
+					EnvironmentVariable("AZURE_CLIENT_SECRET") = sCREDENTIAL
+					bENV_ATS_CREDENTIAL = true
+					ElseIf bCODESIGN_PFX Then
+					EnvironmentVariable("PFX_PASSWORD") = sCREDENTIAL
+					bENV_PFX_CREDENTIAL = true
+					End If
+					End If
+					End If
+					
 					'CodeSign in Docker Container
 					Var sSIGN_COMMAND As String
 					Var sSIGN_ENTRYPOINT As String
-					If (sFILE_ACS_JSON <> "") And (sFILE_AZURE_JSON <> "") Then
+					If bCODESIGN_ATS Then
 					'CodeSign using Azure Trusted Signing
 					sSIGN_ENTRYPOINT = "ats-codesign.sh"
 					sSIGN_COMMAND = _
@@ -177,12 +233,13 @@
 					"--rm " + _
 					"-v """ + sFILE_ACS_JSON + """:/etc/ats-codesign/acs.json " + _
 					"-v """ + sFILE_AZURE_JSON + """:/etc/ats-codesign/azure.json " + _
+					If(bENV_ATS_CREDENTIAL, "-e AZURE_CLIENT_SECRET ", "") + _
 					"-v """ + sBUILD_LOCATION + """:/data " + _
 					"-w /data " + _
 					"--entrypoint " + sSIGN_ENTRYPOINT + " " + _
 					sDOCKER_IMAGE + " " + _
 					String.FromArray(sSIGN_FILES, " ")
-					ElseIf (sFILE_PFX_JSON <> "") And (sFILE_PFX_CERTIFICATE <> "") Then
+					ElseIf bCODESIGN_PFX Then
 					'CodeSign using .pfx
 					sSIGN_ENTRYPOINT = "pfx-codesign.sh"
 					sSIGN_COMMAND = _
@@ -190,6 +247,7 @@
 					"--rm " + _
 					"-v """ + sFILE_PFX_JSON + """:/etc/pfx-codesign/pfx.json " + _
 					"-v """ + sFILE_PFX_CERTIFICATE + """:/etc/pfx-codesign/certificate.pfx " + _
+					If(bENV_PFX_CREDENTIAL, "-e PFX_PASSWORD ", "") + _
 					"-v """ + sBUILD_LOCATION + """:/data " + _
 					"-w /data " + _
 					"--entrypoint " + sSIGN_ENTRYPOINT + " " + _
@@ -342,8 +400,10 @@
 					'     (only if you want a codesigned Installer)
 					' 1.1 Azure Trusted Signing
 					'     Requires acs.json and azure.json in ~/.ats-codesign
+					'     Strongly recommends ats-codesign-credential.sh in ~/.ats-codesign
 					' 1.2 CodeSign Certificate .pfx
 					'     Requires pfx.json and certificate.pfx in ~/.pfx-codesign
+					'     Strongly recommends pfx-codesign-credential.sh in ~/.pfx-codesign
 					' 2.  Have Docker up and running
 					' 3.  Put your own InnoSetup Script to the project location (or use the universal script
 					'     provided with the example project - modify that according to your needs)
@@ -375,18 +435,22 @@
 					' 3. (reboot)
 					'*********************************************************************************************
 					
+					
 					'*********************************************************************************************
 					' Security Warning
 					'*********************************************************************************************
 					'This Post Build Script is intended as an example to demonstrate the functionality.
-					'However, it retrieves sensitive information (such As a Client Secret Or Certificate Password)
-					'from a plaintext `.json` configuration file, which is not secure.
+					'However, it allows to retrieve sensitive information (such as a Client Secret or certificate
+					'Password from a plaintext `.json` configuration file, which is not secure.
+					'However, the provided Post Build Script also supports retrieving credentials from a
+					'Secret Storage. It's highly recommended to use that approach.
 					'If using similar logic in a production environment, implement a secure method for managing
 					'secrets to protect sensitive information.
 					'Retrieve the secrets In the Post Build Script from a secure storage, and run the
 					'Docker Container from the script with the corresponding Environment Variables,
 					'omitting the secrets In the `.json` configuration files.
 					'*********************************************************************************************
+					
 					
 					If DebugBuild Then Return 'don't create a windows installer for DebugRun's
 					
@@ -550,6 +614,9 @@
 					Return
 					End If
 					
+					Var bCODESIGN_ATS As Boolean = (sFILE_ACS_JSON <> "") And (sFILE_AZURE_JSON <> "")
+					Var bCODESIGN_PFX As Boolean = (sFILE_PFX_JSON <> "") And (sFILE_PFX_CERTIFICATE <> "")
+					
 					If (sPROJECT_PATH = "") Then
 					If (Not bSILENT) Then Print "CreateZIP: Could not get the Environment Variable PROJECT_PATH from the Xojo IDE." + EndOfLine + EndOfLine + "Unfortunately, it's empty.... try again after re-launching the Xojo IDE and/or rebooting your machine."
 					Return
@@ -570,7 +637,7 @@
 					Return
 					End If
 					
-					If ((sFILE_ACS_JSON = "") Or (sFILE_AZURE_JSON = "")) And ((sFILE_PFX_JSON = "") Or (sFILE_PFX_CERTIFICATE = "")) Then
+					If (Not bCODESIGN_ATS) And (Not bCODESIGN_PFX) Then
 					If (Not bSILENT) Then
 					Print "InnoSetup:" + EndOfLine + _
 					"acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]" + EndOfLine + _
@@ -608,6 +675,10 @@
 					'Run InnoSetup (and CodeSign) in Docker Container
 					Var sINNOSETUP_PARAMETERS() As String
 					
+					Var bENV_ATS_CREDENTIAL As Boolean
+					Var bENV_PFX_CREDENTIAL As Boolean
+					
+					'Enable Codesigning
 					If bCODESIGN_AVAILABLE Then
 					If (sFILE_ACS_JSON <> "") And (sFILE_AZURE_JSON <> "") Then
 					sINNOSETUP_PARAMETERS.Add("""/SATS=Z:/usr/local/bin/ats-codesign.bat $f""")
@@ -615,6 +686,52 @@
 					ElseIf (sFILE_PFX_JSON <> "") And (sFILE_PFX_CERTIFICATE <> "") Then
 					sINNOSETUP_PARAMETERS.Add("""/SATS=Z:/usr/local/bin/pfx-codesign.bat $f""")
 					sINNOSETUP_PARAMETERS.Add("/DcsCodeSignATS")
+					End If
+					
+					'Get Credential from Secure Storage
+					If bCODESIGN_ATS Or bCODESIGN_PFX Then
+					Var SFILE_CREDENTIAL As String
+					Var sCREDENTIAL_COMMAND As String
+					
+					If TargetWindows Then 'Xojo IDE is running on Windows
+					If bCODESIGN_ATS Then
+					SFILE_CREDENTIAL = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\ats-codesign-credential.ps1 echo %USERPROFILE%\.ats-codesign\ats-codesign-credential.ps1").Trim
+					ElseIf bCODESIGN_PFX Then
+					SFILE_CREDENTIAL = DoShellCommand("if exist %USERPROFILE%\.pfx-codesign\pfx-codesign-credential.ps1 echo %USERPROFILE%\.pfx-codesign\pfx-codesign-credential.ps1").Trim
+					End If
+					If (SFILE_CREDENTIAL <> "") Then
+					sCREDENTIAL_COMMAND = "powershell """ + SFILE_CREDENTIAL + """"
+					End If
+					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
+					If bCODESIGN_ATS Then
+					SFILE_CREDENTIAL = DoShellCommand("[ -f ~/.ats-codesign/ats-codesign-credential.sh ] && echo ~/.ats-codesign/ats-codesign-credential.sh").Trim
+					ElseIf bCODESIGN_PFX Then
+					SFILE_CREDENTIAL = DoShellCommand("[ -f ~/.pfx-codesign/pfx-codesign-credential.sh ] && echo ~/.pfx-codesign/pfx-codesign-credential.sh").Trim
+					End If
+					If (SFILE_CREDENTIAL <> "") Then
+					Call DoShellCommand("chmod 755 """ + SFILE_CREDENTIAL + """") 'just to make sure it's executable
+					sCREDENTIAL_COMMAND = SFILE_CREDENTIAL
+					End If
+					End If
+					
+					If (sCREDENTIAL_COMMAND <> "") Then
+					'Once the Credential Helper Script is in place, we expect to get a value from it
+					Var iCREDENTIAL_RESULT As Integer
+					Var sCREDENTIAL As String = DoShellCommand(sCREDENTIAL_COMMAND, 0, iCREDENTIAL_RESULT).Trim
+					If (iCREDENTIAL_RESULT <> 0) Or (sCREDENTIAL = "") Then
+					Print  "InnoSetup: Could not retrieve " + If(bCODESIGN_ATS, "ATS", "PFX") + " Credential"
+					Return
+					End If
+					
+					'Use Environment Variable
+					If bCODESIGN_ATS Then
+					EnvironmentVariable("AZURE_CLIENT_SECRET") = sCREDENTIAL
+					bENV_ATS_CREDENTIAL = true
+					ElseIf bCODESIGN_PFX Then
+					EnvironmentVariable("PFX_PASSWORD") = sCREDENTIAL
+					bENV_PFX_CREDENTIAL = true
+					End If
+					End If
 					End If
 					End If
 					
@@ -652,8 +769,10 @@
 					"--rm " + _
 					If(sFILE_ACS_JSON <> "", "-v """ + sFILE_ACS_JSON + """:/etc/ats-codesign/acs.json ", "") + _
 					If(sFILE_AZURE_JSON <> "", "-v """ + sFILE_AZURE_JSON + """:/etc/ats-codesign/azure.json ", "") + _
+					If(bENV_ATS_CREDENTIAL, "-e AZURE_CLIENT_SECRET ", "") + _
 					If(sFILE_PFX_JSON <> "", "-v """ + sFILE_PFX_JSON + """:/etc/pfx-codesign/pfx.json ", "") + _
 					If(sFILE_PFX_CERTIFICATE <> "", "-v """ + sFILE_PFX_CERTIFICATE + """:/etc/pfx-codesign/certificate.pfx ", "") + _
+					If(bENV_PFX_CREDENTIAL, "-e PFX_PASSWORD ", "") + _
 					"-v """ + sFOLDER_BASE + """:/data " + _
 					"-v """ + sINNOSETUP_SCRIPT + """:/tmp/innosetup-script.iss " + _
 					"-w /data " + _

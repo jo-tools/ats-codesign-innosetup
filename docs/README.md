@@ -1,6 +1,16 @@
 # Docs
 
-Some useful links and archived Web content.
+Some useful templates, links and archived Web content.
+
+## Templates
+
+These templates can be used for:
+- Docker Hub: [`jotools/codesign`](https://hub.docker.com/r/jotools/codesign) and [`jotools/innosetup`](https://hub.docker.com/r/jotools/innosetup)
+- Xojo Example Project: `ATS CodeSign InnoSetup.xojo_project`
+
+Template configuration files for Codesigning using:
+- [Azure Trusted Signing](./ats-codesign/)
+- [Codesigning certificate `.pfx`](./pfx-codesign/)
 
 ## Links
 
@@ -34,21 +44,5 @@ Some useful links and archived Web content.
 
 These articles have been very helpful and are worth being preserved as `.pdf`.
 
-- [Melatonin: Code signing with ATS](./01_Melatonin-Dev_AzureTrustedSigning.pdf)
-- [KoalaDocs: ATS | signtool.exe](./02_KoalaDocs_Signtool.pdf)
-
-## Templates
-
-Template configuration files for Docker Hub: [`jotools/codesign`](https://hub.docker.com/r/jotools/codesign) and [`jotools/innosetup`](https://hub.docker.com/r/jotools/innosetup):
-
-### Azure Trusted Signing
-
-Place the following two files in `~/.ats-codesign`
-- [`acs.json`](./acs.json)
-- [`azure.json`](./azure.json)
-
-### Codesign certificate `.pfx`
-
-Place the following two files in `~/.pfx-codesign`
-- [`pfx.json`](./pfx.json)
-- `certificate.pfx`
+- [Melatonin: Code signing with ATS](./archive/01_Melatonin-Dev_AzureTrustedSigning.pdf)
+- [KoalaDocs: ATS | signtool.exe](./archive/02_KoalaDocs_Signtool.pdf)
