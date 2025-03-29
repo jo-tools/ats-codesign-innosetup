@@ -4,8 +4,11 @@ Some useful templates, links and archived Web content.
 
 ## Templates
 
-Template configuration files for Docker Hub: [`jotools/codesign`](https://hub.docker.com/r/jotools/codesign) and [`jotools/innosetup`](https://hub.docker.com/r/jotools/innosetup):
+These templates can be used for:
+- Docker Hub: [`jotools/codesign`](https://hub.docker.com/r/jotools/codesign) and [`jotools/innosetup`](https://hub.docker.com/r/jotools/innosetup)
+- Xojo Example Project: `ATS CodeSign InnoSetup.xojo_project`
 
+Template configuration files for Codesigning using:
 - [Azure Trusted Signing](./ats-codesign/)
 - [Codesigning certificate `.pfx`](./pfx-codesign/)
 
