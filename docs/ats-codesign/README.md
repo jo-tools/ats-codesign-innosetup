@@ -27,7 +27,9 @@ To enable that functionality the following configuration is required.
 
 3. Place the following script in `~/.ats-codesign`:
    - [`ats-codesign-credential.ps1`](./ats-codesign-credential.ps1)  
-     Windows *(Powershell)*
+     Windows *(Powershell)*  
+     - Run this script once manually with Powershell
+     - Especially if you have downloaded this script it might be blocked by PowerShell's Execution Policy. When running it manually: allow this script to be run always.
    - [`ats-codesign-credential.sh`](./ats-codesign-credential.sh)  
      macOS/Linux *(Shell Script)*
 

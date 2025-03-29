@@ -60,8 +60,8 @@ This allows the Windows application to be built and codesigned with the Xojo IDE
 
 ### ScreenShots
 
-Xojo Example Project: ATS CodeSign | Docker  
-![ScreenShot: Xojo Example Project: ATS CodeSign | Docker](screenshots/xojo-example-project.png?raw=true)
+Xojo Example Project: ATS CodeSign | InnoSetup | Docker  
+![ScreenShot: Xojo Example Project: ATS CodeSign | InnoSetup | Docker](screenshots/xojo-example-project.png?raw=true)
 
 Code Signature *(Codesigned with Xojo IDE running on macOS)*
 ![ScreenShot: Code Signature - Codesigned with Xojo IDE running on macOS](screenshots/code-signature.png?raw=true)
