@@ -1,5 +1,5 @@
 {
-  "Password": "xxx",
+  "Password": "[Codesigning Certificate Password]",
   "TimestampServer": "http://timestamp.digicert.com",
   "TimestampMode": "Authenticode"
 }
