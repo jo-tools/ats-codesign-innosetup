@@ -143,13 +143,11 @@ The Desktop application Xojo example project `ATS CodeSign InnoSetup.xojo_projec
 
 ## Security Warning
 
-The Post Build Scripts in the example project are intended as an example to demonstrate the functionality. They allow to retrieve sensitive information *(such as a Client Secret or Certificate Password)* from a plaintext `.json` configuration file, which is **not secure**.  
-However, the provided Post Build Scripts also support retrieving credentials from a Secret Storage. It's highly recommended to use that approach.
+The Post Build Scripts in the example project are intended as an example to demonstrate the functionality. They allow to retrieve sensitive information *(such as a Client Secret or Certificate Password)* from a plaintext `.json` configuration file, which is **not secure**.
+
+However, the provided Post Build Scripts also support retrieving credentials from a Secret Storage and run the Docker Container with the corresponding Environment Variables, omitting the secrets in the `.json` configuration files. It's highly recommended to use that approach.
 
 If using similar logic in a production environment, make sure to implement a secure method for managing secrets to protect sensitive information.
-
-Retrieve the secrets in the Post Build Script from a secure storage, and run the Docker Container from the script with the corresponding Environment Variables, omitting the secrets in the `.json` configuration files.  
-
 
 
 <details>
