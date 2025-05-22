@@ -118,9 +118,11 @@ Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
 
-; Require Windows 8.1 with Update 1
-MinVersion=6.3.9600
+; Xojo 2025r1.1: Require Windows 10 Version 1903 (May 2019 Update)
+MinVersion=10.0.18362
 
+; Xojo 2024r4.2: Require Windows 8.1 with Update 1
+; MinVersion=6.3.9600
 
 ; Set Signtool only if called with Parameter /DcsCodeSignATS
 #ifdef csCodeSignATS
