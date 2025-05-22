@@ -163,9 +163,27 @@
 					
 					Var sCHECK_DOCKER_PROCESS As String = DoShellCommand(sDOCKER_EXE + " ps", 0, iCHECK_DOCKER_RESULT).Trim
 					If (iCHECK_DOCKER_RESULT <> 0) Then
+					'Try to launch Docker (wait max 30 seconds)
+					If TargetWindows Then 'Xojo IDE is running on Windows
+					Call DoShellCommand("""C:\Program Files\Docker\Docker\Docker Desktop.exe""")
+					Call DoShellCommand("powershell -Command ""$i=0; while (-not (docker ps 2>$null)) { Start-Sleep -Seconds 1; $i++; if ($i -ge 30) { exit 1 } }""")
+					ElseIf TargetMacOS Then 'Xojo IDE is running on macOS
+					Call DoShellCommand("open -b com.docker.docker", 0)
+					Call DoShellCommand("sleep 5") 'give it a bit of time to start launching
+					Call DoShellCommand("i=0; while ! " + sDOCKER_EXE + " ps >/dev/null 2>&1; do sleep 1; i=$((i+1)); if [ $i -ge 25 ]; then exit 1; fi; done")
+					ElseIf TargetLinux Then 'Xojo IDE is running on Linux
+					// Not implemented
+					' Too many possible and different environments and ways to launch
+					' Implement yourself in a way that works for you machine setup
+					End If
+					'Re-check after trying to launch Docker
+					sCHECK_DOCKER_PROCESS = DoShellCommand(sDOCKER_EXE + " ps", 0, iCHECK_DOCKER_RESULT).Trim
+					If (iCHECK_DOCKER_RESULT <> 0) Then
 					Print "Codesign: Docker not running"
 					Return
 					End If
+					End If
+					
 					
 					'Get Credential from Secure Storage
 					Var bENV_ATS_CREDENTIAL As Boolean
@@ -648,8 +666,25 @@
 					
 					Var sCHECK_DOCKER_PROCESS As String = DoShellCommand(sDOCKER_EXE + " ps", 0, iCHECK_DOCKER_RESULT).Trim
 					If (iCHECK_DOCKER_RESULT <> 0) Then
+					'Try to launch Docker (wait max 30 seconds)
+					If TargetWindows Then 'Xojo IDE is running on Windows
+					Call DoShellCommand("""C:\Program Files\Docker\Docker\Docker Desktop.exe""")
+					Call DoShellCommand("powershell -Command ""$i=0; while (-not (docker ps 2>$null)) { Start-Sleep -Seconds 1; $i++; if ($i -ge 30) { exit 1 } }""")
+					ElseIf TargetMacOS Then 'Xojo IDE is running on macOS
+					Call DoShellCommand("open -b com.docker.docker", 0)
+					Call DoShellCommand("sleep 5") 'give it a bit of time to start launching
+					Call DoShellCommand("i=0; while ! " + sDOCKER_EXE + " ps >/dev/null 2>&1; do sleep 1; i=$((i+1)); if [ $i -ge 25 ]; then exit 1; fi; done")
+					ElseIf TargetLinux Then 'Xojo IDE is running on Linux
+					// Not implemented
+					' Too many possible and different environments and ways to launch
+					' Implement yourself in a way that works for you machine setup
+					End If
+					'Re-check after trying to launch Docker
+					sCHECK_DOCKER_PROCESS = DoShellCommand(sDOCKER_EXE + " ps", 0, iCHECK_DOCKER_RESULT).Trim
+					If (iCHECK_DOCKER_RESULT <> 0) Then
 					If (Not bVERYSILENT) Then Print "InnoSetup: Docker not running"
 					Return
+					End If
 					End If
 					
 					Var sPATH_PARTS() As String = sBUILD_LOCATION.Split(sCHAR_FOLDER_SEPARATOR)
