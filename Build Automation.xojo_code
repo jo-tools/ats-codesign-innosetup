@@ -550,6 +550,12 @@
 					Return
 					End Select
 					
+					'System Requirements for built Windows application
+					Var sMINVERSION As String = "6.3.9600" 'Require Windows 8.1 with Update 1
+					If (XojoVersion >= 2025.0) Then
+					sMINVERSION = "10.0.18362" 'Require Windows 10 Version 1903 (May 2019 Update)
+					End If
+					
 					'Set Parameters for InnoSetup Script
 					Var sISS_csProductName As String = sAPP_PRODUCTNAME
 					Var sISS_csProductNameWithStageCode As String = sAPP_PRODUCTNAME + " " + sAPP_PRODUCTNAME_STAGECODE_SUFFIX
@@ -741,6 +747,10 @@
 					sINNOSETUP_PARAMETERS.Add("/DcsBuildTargetARM64")
 					End Select
 					
+					'System Requirements for built Windows application
+					sINNOSETUP_PARAMETERS.Add("/DcsMinVersion=""" + sMINVERSION + """")
+					
+					'Docker related Parameters
 					sINNOSETUP_PARAMETERS.Add("/O""Z:/data""") 'Output in Folder
 					sINNOSETUP_PARAMETERS.Add("/Dsourcepath=""Z:/data/" + sISS_RELATIVE_SOURCEPATH + """") 'Folder of built App
 					sINNOSETUP_PARAMETERS.Add("""Z:/tmp/innosetup-script.iss""") 'we mount the script to this location
