@@ -671,8 +671,7 @@
 					Call DoShellCommand("""C:\Program Files\Docker\Docker\Docker Desktop.exe""")
 					Call DoShellCommand("powershell -Command ""$i=0; while (-not (docker ps 2>$null)) { Start-Sleep -Seconds 1; $i++; if ($i -ge 30) { exit 1 } }""")
 					ElseIf TargetMacOS Then 'Xojo IDE is running on macOS
-					Call DoShellCommand("open -b com.docker.docker", 0)
-					Call DoShellCommand("sleep 5") 'give it a bit of time to start launching
+					Call DoShellCommand("open -b com.docker.docker ; sleep 5", 0) 'give it a bit of time to start launching
 					Call DoShellCommand("i=0; while ! " + sDOCKER_EXE + " ps >/dev/null 2>&1; do sleep 1; i=$((i+1)); if [ $i -ge 25 ]; then exit 1; fi; done")
 					ElseIf TargetLinux Then 'Xojo IDE is running on Linux
 					// Not implemented
