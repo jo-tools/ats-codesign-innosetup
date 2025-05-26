@@ -14,6 +14,14 @@
 ; ------------------------------------------------------------------------
 ; one of the following
 ; /DcsBuildTargetWIN32 | /DcsBuildTargetWIN64 | /DcsBuildTargetARM64
+; ------------------------------------------------------------------------
+; Minimum Version of Windows (for Installation Requirements)
+; ------------------------------------------------------------------------
+; /DcsMinVersion="My App Publisher"
+; Xojo 2025r1.1: Require Windows 10 Version 1903 (May 2019 Update)
+; /DcsMinVersion="10.0.18362"
+; Xojo 2024r4.2: Require Windows 8.1 with Update 1
+; /DcsMinVersion="6.3.9600"
 ; ************************************************************************
 ; Enable CodeSigning using Azure Trusted Signing (or .pfx)
 ; Note: ATS here doesn't mean to support Azure Trusted Signing only.
@@ -49,7 +57,9 @@
 #ifndef csOutputBaseFilename
   #define csOutputBaseFilename "Setup_MyApplication"
 #endif
-
+#ifndef csMinVersion
+  #define csMinVersion "10.0.18362"
+#endif
 
 #define ApplicationVersion	GetFileProductVersion(AddBackslash(SourcePath) + csExeName)
 
@@ -118,9 +128,7 @@ Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
 
-; Require Windows 8.1 with Update 1
-MinVersion=6.3.9600
-
+MinVersion={#csMinVersion}
 
 ; Set Signtool only if called with Parameter /DcsCodeSignATS
 #ifdef csCodeSignATS
