@@ -407,6 +407,10 @@
 					'     Especially look out for sDOCKER_EXE
 					'     You might need to set the full path to the executable
 					'
+					'     Set bCODESIGN_ENABLED = False if you want to create a Windows Installer without
+					'     CodeSigning. If this value is True, the Post Build Script will expect Codesigning to be
+					'     available and print an Information Message if it's configuration is not found.
+					'
 					'     And at least change the sAPP_PUBLISHER_URL to your own Website if you're using
 					'     the provided universal InnoSetup script
 					'*********************************************************************************************
@@ -441,6 +445,9 @@
 					
 					
 					If DebugBuild Then Return 'don't create a windows installer for DebugRun's
+					
+					'bCODESIGN_ENABLED: set this to False if you want to create a Windows Installer without CodeSigning
+					Var bCODESIGN_ENABLED As Boolean = True 'when True this shows a Info when CodeSign Configuration is missing
 					
 					'bSILENT=True : don't show any messages until checking configuration
 					Var bSILENT As Boolean = False 'in this example project we want to show if it's not going to work
@@ -576,15 +583,16 @@
 					'Check Environment
 					Var sDOCKER_EXE As String = "docker"
 					Var sCHAR_FOLDER_SEPARATOR As String
-					Var bCODESIGN_AVAILABLE As Boolean
 					
 					If TargetWindows Then 'Xojo IDE is running on Windows
 					sPROJECT_PATH = DoShellCommand("echo %PROJECT_PATH%", 0).Trim
 					sCHAR_FOLDER_SEPARATOR = "\"
+					If bCODESIGN_ENABLED Then
 					sFILE_ACS_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\acs.json echo %USERPROFILE%\.ats-codesign\acs.json").Trim
 					sFILE_AZURE_JSON = DoShellCommand("if exist %USERPROFILE%\.ats-codesign\azure.json echo %USERPROFILE%\.ats-codesign\azure.json").Trim
 					sFILE_PFX_JSON = DoShellCommand("if exist %USERPROFILE%\.pfx-codesign\pfx.json echo %USERPROFILE%\.pfx-codesign\pfx.json").Trim
 					sFILE_PFX_CERTIFICATE = DoShellCommand("if exist %USERPROFILE%\.pfx-codesign\certificate.pfx echo %USERPROFILE%\.pfx-codesign\certificate.pfx").Trim
+					End If
 					ElseIf TargetMacOS Or TargetLinux Then 'Xojo IDE running on macOS or Linux
 					sPROJECT_PATH = DoShellCommand("echo $PROJECT_PATH", 0).Trim
 					If sPROJECT_PATH.Right(1) = "/" Then
@@ -596,13 +604,15 @@
 					sBUILD_LOCATION = sBUILD_LOCATION.Left(sBUILD_LOCATION.Length - 1)
 					End If
 					sCHAR_FOLDER_SEPARATOR = "/"
+					sBUILD_LOCATION = sBUILD_LOCATION.ReplaceAll("\", "") 'don't escape Path
 					sDOCKER_EXE = DoShellCommand("[ -f /usr/local/bin/docker ] && echo /usr/local/bin/docker").Trim
 					If (sDOCKER_EXE = "") Then sDOCKER_EXE = DoShellCommand("[ -f /snap/bin/docker ] && echo /snap/bin/docker").Trim
+					If bCODESIGN_ENABLED Then
 					sFILE_ACS_JSON = DoShellCommand("[ -f ~/.ats-codesign/acs.json ] && echo ~/.ats-codesign/acs.json").Trim
 					sFILE_AZURE_JSON = DoShellCommand("[ -f ~/.ats-codesign/azure.json ] && echo ~/.ats-codesign/azure.json").Trim
 					sFILE_PFX_JSON = DoShellCommand("[ -f ~/.pfx-codesign/pfx.json ] && echo ~/.pfx-codesign/pfx.json").Trim
 					sFILE_PFX_CERTIFICATE = DoShellCommand("[ -f ~/.pfx-codesign/certificate.pfx ] && echo ~/.pfx-codesign/certificate.pfx").Trim
-					sBUILD_LOCATION = sBUILD_LOCATION.ReplaceAll("\", "") 'don't escape Path
+					End If
 					Else
 					If (Not bSILENT) Then Print "InnoSetup: Xojo IDE running on unknown Target"
 					Return
@@ -631,17 +641,16 @@
 					Return
 					End If
 					
-					If (Not bCODESIGN_ATS) And (Not bCODESIGN_PFX) Then
-					If (Not bSILENT) Then
+					Var bCODESIGN_AVAILABLE As Boolean
+					If bCODESIGN_ENABLED Then
+					bCODESIGN_AVAILABLE = bCODESIGN_ATS Or bCODESIGN_PFX
+					If (Not bCODESIGN_AVAILABLE) And (Not bSILENT) Then
 					Print "InnoSetup:" + EndOfLine + _
 					"acs.json and azure.json not found in [UserHome]-[.ats-codesign]-[acs|azure.json]" + EndOfLine + _
 					"pfx.json and certificate.pfx not found in [UserHome]-[.pfx-codesign]-[pfx.json|certificate.pfx]" + EndOfLine + _
 					EndOfLine + _
 					"Proceeding without codesigning the windows installer"
 					End If
-					bCODESIGN_AVAILABLE = False
-					Else
-					bCODESIGN_AVAILABLE = True
 					End If
 					
 					'Check Docker
