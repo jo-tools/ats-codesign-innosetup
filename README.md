@@ -127,17 +127,19 @@ The Desktop application Xojo example project `ATS CodeSign InnoSetup.xojo_projec
    - [Codesigning Certificate `.pfx`](./docs/pfx-codesign/)
 3. Create a Post Build Script in your project and copy-and-paste the example Post Build Script `InnoSetup` provided in `ATS CodeSign InnoSetup.xojo_project`
 4. Make sure this Post Build Script runs after the Step 'Windows: Build' *(and after `CodeSign` to ensure you include the codesigned application in the windows installer)*
-5. Read the comments in the provided Post Build Script, modify it according to your needs *(e.g. change the value of `sAPP_PUBLISHER_URL` to your own website)*  
-   The example Post Build Script is designed to be quite generic and using the provided universal innosetup script will:
+5. Read the comments in the provided Post Build Script, modify it according to your needs, e.g.:
+   -  change the value of `sAPP_PUBLISHER_URL` to your own website
+   -  change the value of `bCODESIGN_ENABLED` to `False` if you want to create a Windows Installer without CodeSigning. If this value is `True`, the Post Build Script will expect Codesigning to be available and print an Information Message if it's configuration is not found.
+6. The example Post Build Script is designed to be quite generic and using the provided Universal InnoSetup Script will:
    - use the Docker Container [`jotools/innosetup`](https://hub.docker.com/r/jotools/innosetup)
    - create a Windows Installer for Final and Beta Builds
      - *no Windows Installer for Alpha- and Development Builds*
    - pick up necessary information from the Xojo Project *(so make sure you've filled out the values in the Xojo IDE under 'Build Settings: Windows)*, e.g.
      - `App.ProductName`, `App.CompanyName`
      - Filename of the application's `.exe`
-   - picks up the configuration of `CodeSign`
+   - pick up the configuration of `CodeSign` *(if `bCODESIGN_ENABLED = True`)*
      - if available, it codesigns the (Un)Installer
-     - if not found, it ignores codesigning and just creates an installer
+     - if not found, it outputs an Info, proceeds with ignoring codesigning and just creates an installer
 
 </details>
 
