@@ -253,18 +253,22 @@
 					Var sSIGN_OUTPUT As String = DoShellCommand(sSIGN_COMMAND, 0, iSIGN_RESULT)
 					
 					If (iSIGN_RESULT <> 0) Then
-					Clipboard = sSIGN_OUTPUT
-					Print "Codesign: " + sSIGN_ENTRYPOINT + " Error" + EndOfLine + _
-					"[ExitCode: " + iSIGN_RESULT.ToString + "]" + EndOfLine + EndOfLine + _
-					"Note: Shell Output is available in Clipboard."
-					
 					If (iSIGN_RESULT <> 125) Then
 					Var iCHECK_DOCKERIMAGE_RESULT As Integer
 					Var sCHECK_DOCKERIMAGE_OUTPUT As String = DoShellCommand(sDOCKER_EXE + " image inspect " + sDOCKER_IMAGE, 0, iCHECK_DOCKERIMAGE_RESULT)
 					If (iCHECK_DOCKERIMAGE_RESULT <> 0) Then
-					Print "Codesign: Docker Image '" + sDOCKER_IMAGE + "' not available"
+					Print "Codesign: Docker Image '" + sDOCKER_IMAGE + "' not available" + EndOfLine + EndOfLine + _
+					"This sometimes occurs if Docker hasn't been able to automatically download the Docker Image when executing a 'docker run' command." + EndOfLine + EndOfLine + _
+					"Download the required Docker Image once manually by executing this command in a Terminal Window:" + EndOfLine + _
+					sDOCKER_EXE + " image pull " + sDOCKER_IMAGE
+					Return
 					End If
 					End If
+					
+					Clipboard = sSIGN_OUTPUT
+					Print "Codesign: " + sSIGN_ENTRYPOINT + " Error" + EndOfLine + _
+					"[ExitCode: " + iSIGN_RESULT.ToString + "]" + EndOfLine + EndOfLine + _
+					"Note: Shell Output is available in Clipboard."
 					End If
 					
 				End
@@ -791,18 +795,22 @@
 					Var sINNOSETUP_OUTPUT As String = DoShellCommand(sINNOSETUP_COMMAND, 0, iINNOSETUP_RESULT)
 					
 					If (iINNOSETUP_RESULT <> 0) And (Not bVERYSILENT) Then
-					Clipboard = sINNOSETUP_OUTPUT
-					Print "InnoSetup: iscc.sh Error" + EndOfLine + _
-					"[ExitCode: " + iINNOSETUP_RESULT.ToString + "]" + EndOfLine + EndOfLine + _
-					"Note: Shell Output is available in Clipboard."
-					
 					If (iINNOSETUP_RESULT <> 125) Then
 					Var iCHECK_DOCKERIMAGE_RESULT As Integer
 					Var sCHECK_DOCKERIMAGE_OUTPUT As String = DoShellCommand(sDOCKER_EXE + " image inspect " + sDOCKER_IMAGE, 0, iCHECK_DOCKERIMAGE_RESULT)
 					If (iCHECK_DOCKERIMAGE_RESULT <> 0) Then
-					Print "InnoSetup: Docker Image '" + sDOCKER_IMAGE + "' not available"
+					Print "InnoSetup: Docker Image '" + sDOCKER_IMAGE + "' not available" + EndOfLine + EndOfLine + _
+					"This sometimes occurs if Docker hasn't been able to automatically download the Docker Image when executing a 'docker run' command." + EndOfLine + EndOfLine + _
+					"Download the required Docker Image once manually by executing this command in a Terminal Window:" + EndOfLine + _
+					sDOCKER_EXE + " image pull " + sDOCKER_IMAGE
+					Return
 					End If
 					End If
+					
+					Clipboard = sINNOSETUP_OUTPUT
+					Print "InnoSetup: iscc.sh Error" + EndOfLine + _
+					"[ExitCode: " + iINNOSETUP_RESULT.ToString + "]" + EndOfLine + EndOfLine + _
+					"Note: Shell Output is available in Clipboard."
 					End If
 					
 				End
