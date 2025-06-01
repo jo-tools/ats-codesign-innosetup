@@ -407,6 +407,10 @@
 					'     Especially look out for sDOCKER_EXE
 					'     You might need to set the full path to the executable
 					'
+					'     Set bCODESIGN_ENABLED = False if you want to create a Windows Installer without
+					'     CodeSigning. If this value is True, the Post Build Script will expect Codesigning to be
+					'     available and print an Information Message if it's configuration is not found.
+					'
 					'     And at least change the sAPP_PUBLISHER_URL to your own Website if you're using
 					'     the provided universal InnoSetup script
 					'*********************************************************************************************
